@@ -1,0 +1,4681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开始上课 - 拼图游戏：认识四连方</title>
+    <style>
+        /* =================== 设计令牌系统 =================== */
+        :root {
+            --color-primary-50: #eff6ff;
+            --color-primary-100: #dbeafe;
+            --color-primary-200: #bfdbfe;
+            --color-primary-300: #93c5fd;
+            --color-primary-400: #60a5fa;
+            --color-primary-500: #3b82f6;
+            --color-primary-600: #2563eb;
+            --color-primary-700: #1e40af;
+            --color-primary-800: #1e40af;
+            --color-primary-900: #1e3a8a;
+            --color-secondary-500: #6b7280;
+            --color-secondary-700: #374151;
+            --font-family-primary: 'Microsoft YaHei', '微软雅黑', system-ui, -apple-system, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: var(--font-family-primary);
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 50%, #eff6ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8);
+        }
+
+        /* =================== 主容器（白色卡片） =================== */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1400px;
+            height: calc(100vh - 64px);
+            min-height: 600px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* =================== 顶部导航 =================== */
+        .top-nav {
+            height: 70px;
+            background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-8);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-6);
+        }
+
+        .nav-home {
+            color: rgba(255,255,255,0.9);
+            font-size: var(--font-size-xl);
+            font-weight: 500;
+            padding: var(--space-2) var(--space-6);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        .nav-home:hover { color: white; }
+        .nav-home.active {
+            background: rgba(255,255,255,0.35);
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .nav-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.3); margin: 0 var(--space-2); }
+
+        .nav-tab {
+            color: rgba(255,255,255,0.9);
+            font-size: var(--font-size-xl);
+            font-weight: 500;
+            padding: var(--space-2) var(--space-6);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .nav-tab:hover { color: white; }
+        .nav-tab.active {
+            background: rgba(255,255,255,0.35);
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        /* =================== 帮助弹窗 =================== */
+        .help-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .help-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .help-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px 40px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .help-modal-overlay.show .help-modal {
+            transform: scale(1);
+        }
+        .help-modal-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--color-primary-700);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .help-modal-content {
+            font-size: var(--font-size-lg);
+            color: var(--color-secondary-700);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+        .help-modal-content ol {
+            padding-left: 24px;
+        }
+        .help-modal-content li {
+            margin-bottom: 8px;
+        }
+        .help-modal-btn {
+            background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            cursor: pointer;
+            float: right;
+            transition: all 0.2s;
+        }
+        .help-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+        }
+
+        /* =================== 主体区 =================== */
+        .main-wrap { flex: 1; display: flex; overflow: hidden; }
+
+        /* =================== 左侧栏 =================== */
+        .left-sidebar {
+            width: 200px;
+            flex-shrink: 0;
+            background: linear-gradient(180deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+            padding: var(--space-6) var(--space-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .sidebar-btn {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.95);
+            border: 2px solid rgba(255,255,255,0.25);
+            padding: var(--space-3) var(--space-4);
+            border-radius: 12px;
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+            user-select: none;
+            line-height: 1.4;
+            position: relative;
+            z-index: 1;
+        }
+        .sidebar-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateX(4px);
+        }
+        .sidebar-btn.active {
+            background: var(--color-primary-400);
+            border-color: var(--color-primary-400);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.45);
+        }
+        .sidebar-btn.small-text {
+            font-size: var(--font-size-xs);
+            line-height: 1.2;
+            padding: var(--space-2) var(--space-3);
+        }
+        .sidebar-placeholder {
+            color: rgba(255,255,255,0.4);
+            font-size: var(--font-size-sm);
+            text-align: center;
+            padding: var(--space-8) 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =================== 中间内容区 =================== */
+        .center-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--color-primary-50) 0%, #f0f9ff 100%);
+            position: relative;
+        }
+
+        /* 水彩装饰效果 */
+        .center-area::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(59,130,246,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .center-area::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(ellipse, rgba(147,197,253,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* 欢迎屏 */
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-6);
+            padding: var(--space-8);
+            position: relative;
+            z-index: 1;
+        }
+        .welcome-screen .icon { font-size: 4rem; }
+        .welcome-screen h2 {
+            font-size: var(--font-size-3xl);
+            color: var(--color-primary-700);
+            font-weight: 700;
+        }
+        .welcome-screen p {
+            font-size: var(--font-size-lg);
+            color: var(--color-secondary-500);
+            text-align: center;
+            line-height: 1.8;
+            max-width: 500px;
+        }
+
+        /* 通用内容面板 */
+        .content-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: var(--space-4) var(--space-6);
+            gap: var(--space-4);
+            position: relative;
+            z-index: 1;
+        }
+        .panel-header {
+            background: white;
+            border-radius: 16px;
+            padding: var(--space-4) var(--space-6);
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--color-primary-500);
+            flex-shrink: 0;
+        }
+        .panel-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-primary-700);
+            margin-bottom: var(--space-1);
+        }
+        .panel-desc {
+            font-size: var(--font-size-base);
+            color: var(--color-secondary-500);
+            line-height: 1.6;
+        }
+
+        /* =================== 拼图互动区 =================== */
+        .tetromino-wrap {
+            flex: 1;
+            display: flex;
+            gap: 12px;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .grid-wrap {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: auto;
+        }
+        .grid-area.grid-8x8  { grid-template-columns: repeat(8, 38px); grid-template-rows: repeat(8, 38px); }
+        .drag-squares-wrap {
+            flex: 1;
+            display: flex;
+            gap: var(--space-3);
+            padding: var(--space-2);
+            justify-content: space-between;
+            overflow: hidden;
+            min-height: 0;
+        }
+        .tetromino-actions {
+            flex: 0 0 140px;
+            background: white;
+            border-radius: 16px;
+            padding: 16px 12px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            overflow: hidden;
+        }
+        .tetromino-actions h4 {
+            font-size: var(--font-size-base);
+            color: var(--color-primary-700);
+            text-align: center;
+            font-weight: 600;
+            margin: 0;
+        }
+        .action-tip {
+            font-size: 12px;
+            color: var(--color-secondary-500);
+            text-align: center;
+            padding: 6px 0;
+        }
+        .action-group {
+            display: flex;
+            gap: 6px;
+        }
+        .action-group .ctrl-btn {
+            flex: 1;
+            font-size: 12px;
+            padding: 8px 4px;
+        }
+        .tetromino-actions .ctrl-btn {
+            font-size: 13px;
+            padding: 10px 8px;
+        }
+        .tetromino-actions .actions-divider {
+            margin: 4px 0;
+        }
+            padding: var(--space-2);
+            justify-content: space-between;
+            gap: var(--space-3);
+        }
+        .squares-source {
+            flex: 1 1 0;
+            max-width: 220px;
+            background: white;
+            border-radius: 16px;
+            padding: var(--space-4);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+        }
+        .squares-source h4 {
+            font-size: var(--font-size-lg);
+            color: var(--color-primary-700);
+            margin-bottom: var(--space-4);
+            text-align: center;
+        }
+        .squares-pool {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            place-items: center;
+            padding: var(--space-4);
+        }
+        .draggable-square {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            border-radius: 8px;
+            cursor: grab;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+            transition: all 0.2s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .draggable-square:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(59,130,246,0.5);
+        }
+        .draggable-square.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        .grid-cell.droppable {
+            background: rgba(59,130,246,0.1);
+            border: 2px dashed var(--color-primary-400);
+        }
+        .grid-cell .dropped-square {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+        }
+        .tetromino-left {
+            flex: 0 0 320px;
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .tetromino-pool {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            flex: 1;
+            align-items: center;
+            justify-items: center;
+            padding: 8px;
+        }
+        .tetromino-controls {
+            display: flex;
+            gap: 6px;
+            padding: 8px;
+            flex-shrink: 0;
+        }
+        .tetromino-controls .ctrl-btn {
+            flex: 1;
+            font-size: 13px;
+            padding: 8px 4px;
+        }
+        .tetromino-actions .ctrl-btn {
+            font-size: 14px;
+            padding: 10px 8px;
+        }
+        .tetromino-shape-item {
+            width: 78px;
+            height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(59,130,246,0.07);
+            border: 2px dashed rgba(59,130,246,0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tetromino-shape-item:hover {
+            border-color: var(--color-primary-500);
+            background: rgba(59,130,246,0.12);
+        }
+        .tetromino-shape-item.selected {
+            border-color: var(--color-primary-500);
+            background: rgba(59,130,246,0.18);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.3);
+        }
+        .tetromino-draggable {
+            display: inline-grid;
+            gap: 3px;
+        }
+        .tetromino-draggable .block { width: 16px; height: 16px; border-radius: 3px; }
+
+        /* 形状颜色 */
+        .shape-I .block { background: #3b82f6; }
+        .shape-L .block { background: #f59e0b; }
+        .shape-J .block { background: #10b981; }
+        .shape-T .block { background: #8b5cf6; }
+        .shape-Z .block { background: #ef4444; }
+        .shape-O .block { background: #ec4899; }
+
+        /* 网格 */
+        .grid-wrap {
+            flex: 0 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: var(--space-4);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .grid-wrap h4 {
+            font-size: var(--font-size-base);
+            color: var(--color-primary-700);
+            margin-bottom: var(--space-3);
+            text-align: center;
+            font-weight: 600;
+        }
+        .grid-area {
+            display: grid;
+            gap: 8px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 8px;
+            overflow: hidden;
+        }
+        .grid-area.grid-8x8  { grid-template-columns: repeat(8, 34px); grid-template-rows: repeat(8, 34px); }
+        .grid-area.grid-8x16 { grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(16, 40px); }
+        .grid-area.grid-4x8  { grid-template-columns: repeat(4, 40px); grid-template-rows: repeat(8, 40px); }
+        .grid-area.grid-5x10 { grid-template-columns: repeat(10, 40px); grid-template-rows: repeat(5, 40px); }
+        .grid-area.grid-8x7  { grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(7, 40px); }
+        .grid-area.grid-12x8  { grid-template-columns: repeat(12, 32px); grid-template-rows: repeat(8, 32px); gap: 2px; }
+        /* 应用实践 grid-12x8 的单元格尺寸覆写（JS会动态覆盖） */
+        .grid-area.grid-12x8 .grid-cell { width: 32px; height: 32px; border-radius: 3px; }
+
+        /* 拼图区域中央提示 */
+        .squares-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background: rgba(30, 58, 138, 0.95);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 280px;
+            text-align: center;
+            animation: messageFadeIn 0.3s ease;
+        }
+        @keyframes messageFadeIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .squares-message-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        .squares-message-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .squares-message-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        /* 应用实践提示框 */
+        .tetromino-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background: rgba(30, 58, 138, 0.95);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 320px;
+            text-align: center;
+            animation: messageFadeIn 0.3s ease;
+        }
+        .tetromino-message-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        .tetromino-message-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .tetromino-message-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        /* 让grid-wrap有相对定位，作为提示的父容器 */
+        .grid-wrap {
+            position: relative;
+            min-height: 420px;
+            flex: 2 1 0;
+        }
+        .grid-cell {
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 4px;
+            background: white;
+            transition: all 0.15s;
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        .grid-cell.drag-over { background: #dbeafe; border-color: var(--color-primary-500); border-style: solid; }
+        .grid-cell.filled { border-style: solid; border-color: rgba(0,0,0,0.1); }
+        .grid-cell.filled .sq { width: 100%; height: 100%; border-radius: 4px; cursor: grab; }
+        /* 目标区域高亮 */
+        .target-cell {
+            background-color: rgba(59, 130, 246, 0.18) !important;
+            box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.35);
+        }
+        .target-cell.filled {
+            background-color: inherit !important;
+            box-shadow: none;
+        }
+        .grid-cell.pre-filled-cell {
+            background: transparent !important;
+            border-color: transparent !important;
+        }
+        .grid-cell.pre-filled-cell .sq {
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .grid-controls {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: center;
+            padding-top: var(--space-3);
+            border-top: 1px solid #e2e8f0;
+            margin-top: var(--space-3);
+            flex-shrink: 0;
+        }
+        /* 右侧操作栏 */
+        .squares-actions {
+            flex: 1 1 0;
+            max-width: 160px;
+            background: white;
+            border-radius: 16px;
+            padding: var(--space-4);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+        .actions-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: var(--space-2) 0;
+        }
+        .squares-actions h4 {
+            font-size: var(--font-size-base);
+            color: var(--color-primary-700);
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+        }
+        .squares-actions .ctrl-btn {
+            width: 100%;
+            padding: var(--space-3) var(--space-2);
+            font-size: var(--font-size-sm);
+        }
+        .ctrl-btn {
+            background: var(--color-primary-500);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ctrl-btn:hover {
+            background: var(--color-primary-600);
+            transform: translateY(-1px);
+        }
+        .ctrl-btn.danger { background: #ef4444; }
+        .ctrl-btn.danger:hover { background: #dc2626; }
+
+        /* =================== 练习题区 =================== */
+        .exercise-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-1) var(--space-1);
+            display: flex;
+            flex-direction: column;
+        }
+        .exercise-card {
+            background: white;
+            border-radius: 16px;
+            padding: var(--space-5) var(--space-6);
+            margin-bottom: var(--space-4);
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--color-primary-500);
+        }
+        .exercise-card h4 {
+            font-size: var(--font-size-lg);
+            color: var(--color-primary-700);
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+        }
+        .exercise-card p {
+            font-size: var(--font-size-base);
+            color: var(--color-secondary-500);
+            line-height: 1.8;
+        }
+        .exercise-card .tag {
+            display: inline-block;
+            padding: var(--space-1) var(--space-3);
+            border-radius: 20px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+        }
+        .tag-basic   { background: #dbeafe; color: #1e40af; }
+        .tag-mixed   { background: #d1fae5; color: #065f46; }
+        .tag-extend  { background: #fef3c7; color: #92400e; }
+        .tag-challenge { background: #fce7f3; color: #831843; }
+
+        /* =================== 总结区 =================== */
+        .summary-area {
+            flex: 1;
+            overflow: hidden;
+            padding: var(--space-1) var(--space-1);
+        }
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: var(--space-5) var(--space-7);
+            margin-bottom: var(--space-4);
+            box-shadow: var(--shadow-md);
+        }
+        .summary-card h4 {
+            font-size: var(--font-size-lg);
+            color: var(--color-primary-700);
+            font-weight: 700;
+            margin-bottom: var(--space-3);
+            text-align: center;
+        }
+        .summary-card ul { padding-left: 24px; }
+        .summary-card li {
+            font-size: var(--font-size-base);
+            color: var(--color-secondary-500);
+            line-height: 2;
+        }
+        .summary-card .highlight {
+            background: var(--color-primary-100);
+            border-radius: 10px;
+            padding: var(--space-3) var(--space-4);
+            margin-top: var(--space-3);
+            font-size: var(--font-size-base);
+            color: var(--color-primary-700);
+            font-weight: 500;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-3) 0;
+            font-size: var(--font-size-base);
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid var(--color-primary-200);
+            padding: var(--space-3) var(--space-4);
+            text-align: center;
+            vertical-align: middle;
+        }
+        .summary-table th {
+            background: var(--color-primary-50);
+            color: var(--color-primary-700);
+            font-weight: 600;
+        }
+        .summary-table tr:nth-child(even) {
+            background: var(--color-primary-50);
+        }
+        /* 表格所有内容居中 */
+
+        /* =================== 四连方形状图形 =================== */
+        .shape-graphic {
+            display: inline-block;
+            font-size: 0;
+            line-height: 0;
+        }
+        .shape-row {
+            display: flex;
+            justify-content: center;
+        }
+        .shape-cell {
+            width: 20px;
+            height: 20px;
+            margin: 1px;
+            border-radius: 2px;
+            background: transparent;
+            border: none;
+        }
+        .shape-cell.filled {
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
+        }
+        /* 一字形 - 蓝色 */
+        .shape-I .shape-cell.filled { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+        /* L形 - 橙色 */
+        .shape-L .shape-cell.filled { background: linear-gradient(135deg, #fb923c, #f97316); }
+        /* T形 - 黄色 */
+        .shape-T .shape-cell.filled { background: linear-gradient(135deg, #facc15, #eab308); }
+        /* 田字形 - 青色 */
+        .shape-O .shape-cell.filled { background: linear-gradient(135deg, #22d3ee, #06b6d4); }
+        /* Z形 - 绿色 */
+        .shape-Z .shape-cell.filled { background: linear-gradient(135deg, #4ade80, #22c55e); }
+
+        .example-box {
+            background: var(--color-primary-50);
+            border-left: 4px solid var(--color-primary-500);
+            padding: var(--space-3) var(--space-4);
+            margin: var(--space-3) 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .example-box p {
+            margin-bottom: var(--space-2);
+        }
+
+        /* 隐藏工具 */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ========== 主容器 ========== -->
+<div class="main-container">
+
+    <!-- ========== 顶部导航 ========== -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="nav-home" onclick="goHome()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                首页
+            </div>
+            <div class="nav-divider"></div>
+            <div class="nav-tab" id="tab-explore" onclick="switchTab('explore')">探究新知</div>
+            <div class="nav-tab" id="tab-practice" onclick="switchTab('practice')">应用实践</div>
+            <div class="nav-tab" id="tab-exercise" onclick="switchTab('exercise')">课堂练习</div>
+            <div class="nav-tab" id="tab-summary" onclick="switchTab('summary')">课堂总结</div>
+        </div>
+    </nav>
+
+    <!-- ========== 主体 ========== -->
+    <div class="main-wrap">
+
+        <!-- 左侧栏 -->
+        <aside class="left-sidebar" id="leftSidebar">
+            <div class="sidebar-placeholder">← 请先点击<br>顶部标签</div>
+        </aside>
+
+        <!-- 中间内容 -->
+        <div class="center-area" id="centerArea">
+
+            <!-- 欢迎屏 -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="icon">🧩</div>
+                <h2>拼图游戏 · 认识四连方</h2>
+                <p>请点击顶部「探究新知」「应用实践」「课堂练习」「课堂总结」开始学习。</p>
+            </div>
+
+            <!-- 内容面板（公用） -->
+            <div class="content-panel hidden" id="contentPanel">
+                <div class="panel-header" id="panelHeader">
+                    <div class="panel-title" id="panelTitle">标题</div>
+                    <div class="panel-desc"  id="panelDesc">描述</div>
+                </div>
+
+                <!-- 四连方拼图区（探究新知 / 应用实践） -->
+                <div class="tetromino-wrap hidden" id="tetrominoSection">
+                    <div class="tetromino-left">
+                        <div class="tetromino-pool" id="tetrominoPool"></div>
+                        <div class="tetromino-controls">
+                            <button class="ctrl-btn" onclick="rotateShapeCommon(1)">↻ 旋转</button>
+                            <button class="ctrl-btn" onclick="flipShapeCommon('horizontal')">⇄ 左右翻转</button>
+                            <button class="ctrl-btn" onclick="flipShapeCommon('vertical')">⇅ 上下翻转</button>
+                        </div>
+                    </div>
+                    <div class="grid-wrap">
+                        <h4 id="gridTitle">拼图区域</h4>
+                        <div class="grid-area grid-8x8" id="gridArea"></div>
+                        <!-- 应用实践提示区域 -->
+                        <div id="tetrominoMessage" class="tetromino-message hidden">
+                            <div class="tetromino-message-content">
+                                <span id="tetrominoMessageText"></span>
+                                <button class="tetromino-message-close" onclick="hideTetrominoMessage()">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tetromino-actions" id="tetrominoActions">
+                        <h4>操作</h4>
+                        <div class="actions-divider"></div>
+                        <button class="ctrl-btn primary" id="btnRegenRect" onclick="regenPracticeRect()" style="display:none;">🎲 随机长方形</button>
+                        <button class="ctrl-btn primary" id="btnRegenSquare" onclick="regenPracticeSquare()" style="display:none;">🎲 随机正方形</button>
+                        <button class="ctrl-btn primary" id="btnRegenFill" onclick="regenPracticeFill()" style="display:none;">🎲 随机填充图形</button>
+                    </div>
+                </div>
+
+                <!-- 认识四连方区（拖拽四个独立正方形） -->
+                <div class="drag-squares-wrap hidden" id="dragSquaresSection">
+                    <div class="squares-source">
+                        <h4>四个小正方形</h4>
+                        <div class="squares-pool" id="squaresPool">
+                            <div class="draggable-square" draggable="true" data-square-id="1"></div>
+                            <div class="draggable-square" draggable="true" data-square-id="2"></div>
+                            <div class="draggable-square" draggable="true" data-square-id="3"></div>
+                            <div class="draggable-square" draggable="true" data-square-id="4"></div>
+                        </div>
+                    </div>
+                    <div class="grid-wrap">
+                        <h4>拼图区域</h4>
+                        <div class="grid-area grid-8x8" id="squaresGridArea"></div>
+                        <!-- 中央提示区域 -->
+                        <div id="squaresMessage" class="squares-message hidden">
+                            <div class="squares-message-content">
+                                <span id="squaresMessageText"></span>
+                                <button class="squares-message-close" onclick="hideSquaresMessage()">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧操作栏 -->
+                    <div class="squares-actions">
+                        <h4>操作</h4>
+                        <button class="ctrl-btn" onclick="rotateSquares(1)">↻ 旋转</button>
+                        <button class="ctrl-btn" onclick="flipSquares()">⇄ 左右翻转</button>
+                        <button class="ctrl-btn" onclick="verticalFlipSquares()">⇅ 上下翻转</button>
+                        <div class="actions-divider"></div>
+                        <button class="ctrl-btn danger" onclick="clearSquaresGrid()">🗑 清空</button>
+                    </div>
+                </div>
+
+                <!-- 练习题区 -->
+                <div class="exercise-area hidden" id="exerciseSection"></div>
+
+                <!-- 总结区 -->
+                <div class="summary-area hidden" id="summarySection"></div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+// 全局错误捕获
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    alert('JS错误：' + msg + '\n行号：' + lineNo + '\n列号：' + columnNo);
+    return false;
+};
+console.log('脚本开始加载...');
+
+// ============================================================
+// 形状定义
+// ============================================================
+const BASE_SHAPES = {
+    I: [[0,0],[0,1],[0,2],[0,3]],
+    L: [[0,0],[1,0],[1,1],[1,2]],
+    T: [[0,0],[0,1],[0,2],[1,1]],
+    Z: [[0,0],[0,1],[1,1],[1,2]],
+    O: [[0,0],[0,1],[1,0],[1,1]]
+};
+const SHAPE_COLORS = { I:'#3b82f6', L:'#f59e0b', T:'#8b5cf6', Z:'#ef4444', O:'#ec4899' };
+const shapeRotation = { I:0, L:0, T:0, Z:0, O:0 };
+const shapeFlip     = { I:null, L:null, T:null, Z:null, O:null };
+
+// ============================================================
+// 当前状态
+// ============================================================
+let currentTab  = null;   // explore | practice | exercise | summary
+let currentSub  = null;   // 当前子菜单 key
+let selectedShape = null;   // 当前选中的四连方类型
+let placements   = {};   // placementId -> { cells:[{row,col}], shape }
+let placementCounter = 0;
+let successfulDrop = false;  // 标记是否成功放置
+
+// ============================================================
+// 导航结构
+// ============================================================
+const NAV = {
+    explore: {
+        label: '探究新知',
+        subs: [
+            { key:'explore-1', label:'认识四连方' },
+            { key:'explore-2', label:'四连方的种类' }
+        ]
+    },
+    practice: {
+        label: '应用实践',
+        subs: [
+            { key:'practice-rectangle', label:'拼任意长方形' },
+            { key:'practice-square',    label:'拼任意正方形' },
+            { key:'practice-fill',      label:'四连方填充图形' }
+        ]
+    },
+    exercise: {
+        label: '课堂练习',
+        subs: [
+            { key:'exercise-fill', label:'我会填空' },
+            { key:'exercise-judge', label:'我会判断' },
+            { key:'exercise-choice', label:'我会选择' },
+            { key:'exercise-puzzle', label:'巧手拼图' }
+        ]
+    },
+    summary: {
+        label: '课堂总结',
+        subs: [
+            { key:'summary-1', label:'四连方的定义' },
+            { key:'summary-2', label:'四连方的种类' },
+            { key:'summary-3', label:'判断是否"不同"的形状？' },
+            { key:'summary-4', label:'易错点提醒' },
+            { key:'summary-5', label:'生活中的四连方' },
+            { key:'summary-6', label:'课后挑战' }
+        ]
+    }
+};
+
+// ============================================================
+// 每个子菜单的内容配置
+// ============================================================
+const CONTENT = {
+    'explore-1': {
+        title: '',
+        desc: '由4个同样的小正方形通过边与边重合连接而成的图形，叫做"四连方"。请将左侧4个小正方形拖入右侧拼图区域，形成四连方。',
+        mode: 'drag-squares',
+        gridClass: 'grid-8x8',
+        gridTitle: '拼图区域'
+    },
+    'explore-2': {
+        title: '四连方的种类',
+        desc: '四连方一共有5种基本形状。认识并了解每种形状的特征。',
+        mode: 'summary',
+        content: `
+            <div class="summary-card">
+                <h4>四连方的5种基本形状</h4>
+                <table class="summary-table">
+                    <tr>
+                        <th>名称</th>
+                        <th>形状</th>
+                        <th>特征口诀</th>
+                        <th>注意</th>
+                    </tr>
+                    <tr>
+                        <td><strong>一字形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-I">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>一字长蛇排成排</td>
+                        <td>只能横放或竖放</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-L">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell"></div>
+                                    <div class="shape-cell"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>直角拐弯像拐角</td>
+                        <td>翻转后和反L是同一种</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-T">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>像字母T站中间</td>
+                        <td>中间凸出一块</td>
+                    </tr>
+                    <tr>
+                        <td><strong>田字形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-O">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>方正平稳四四方</td>
+                        <td>2×2的正方形</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Z形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-Z">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>像字母Z错开排</td>
+                        <td>翻转后和S形是同一种</td>
+                    </tr>
+                </table>
+                <div class="highlight">小窍门：找全所有四连方时，可以按 <strong>"排数"</strong> 分类：先找1排的，再找2排的……这样不会漏！</div>
+            </div>
+        `
+    },
+    'practice-rectangle': {
+        title: '拼任意长方形',
+        desc: '请在高亮区域内放置四连方，拼出一个长方形。长方形的面积必须是4的倍数。',
+        mode: 'practice',
+        practiceType: 'rectangle',
+        gridClass: 'grid-12x8',
+        shapes: ['I','L','T','Z','O']
+    },
+    'practice-square': {
+        title: '拼任意正方形',
+        desc: '请在高亮区域内放置四连方，拼出一个正方形。正方形的面积必须是4的倍数。',
+        mode: 'practice',
+        practiceType: 'square',
+        gridClass: 'grid-12x8',
+        shapes: ['I','L','T','Z','O']
+    },
+    'practice-fill': {
+        title: '四连方填充图形',
+        desc: '已预置若干四连方，请继续填充，形成一个长方形或正方形。',
+        mode: 'practice',
+        practiceType: 'fill',
+        gridClass: 'grid-12x8',
+        shapes: ['I','L','T','Z','O']
+    },
+    'exercise-fill': {
+        title: '填空题',
+        mode:  'exercise-fill',
+        questions: [
+            { q:'由____个同样的小正方形组成的图形，叫做"四连方"。', answer:'4' },
+            { q:'拼四连方时，要求小正方形的____和____重合，角碰角不算。', answer:'边,边' },
+            { q:'四连方中的"田"字形，长是____个小正方形，宽是____个小正方形。', answer:'2,2' },
+            { q:'如果不考虑旋转和翻转，四连方一共有____种不同的形状。', answer:'5' },
+            { q:'用2个"田"字形四连方可以拼成一个长____格、宽____格的长方形。', answer:['4,2', '2,4'] }
+        ]
+    },
+    'exercise-judge': {
+        title: '判断题',
+        mode: 'exercise-judge',
+        questions: [
+            { q:'四连方中的小正方形可以只有顶点相连。', answer: false },
+            { q:'"L"型四连方翻转后，和"J"型是同一种形状。', answer: true },
+            { q:'任意两个四连方都能拼成一个长方形。', answer: false },
+            { q:'一字型四连方本身就是一个长方形。', answer: true },
+            { q:'四连方不能拼成正方形。', answer: false }
+        ]
+    },
+    'exercise-choice': {
+        title: '选择题',
+        mode: 'exercise-choice',
+        questions: [
+            {
+                q:'1. 下面哪个图形不是四连方？（　　）',
+                options: ['A. 一字型', 'B. 田字型', 'C. 由5个小正方形组成的图形', 'D. L型'],
+                answer: 2
+            },
+            { 
+                q:'2. 四连方一共有多少种不同的形状？', 
+                options: ['A. 3种', 'B. 4种', 'C. 5种', 'D. 6种'],
+                answer: 2 
+            },
+            { 
+                q:'3. 下面哪个不是四连方的名称？', 
+                options: ['A. 一字形', 'B. L形', 'C. Z形', 'D. W形'],
+                answer: 3 
+            },
+            {
+                q:'4. 下面哪个四连方的周长最短？（小正方形边长看作1）',
+                options: ['A. 一字型', 'B. 田字型', 'C. L型', 'D. T型'],
+                answer: 1
+            },
+            {
+                q:'5. 用2个相同的一字型四连方，不能拼成（　　）。',
+                options: ['A. 1×8的长条', 'B. 2×4的长方形', 'C. 正方形', 'D. 长方形'],
+                answer: 2
+            }
+        ]
+    },
+    'exercise-puzzle': {
+        title: '巧手拼图',
+        mode: 'exercise-puzzle',
+        taskDesc: '下面是一个 4×5的长方形（共20个小方格，即课本最后的"试一试"）。请你在课本上用5个四连方填充该长方形图形。'
+    },
+    'exercise-1': {
+        title: '基础练习',
+        mode:  'exercise',
+        tag:   'basic',
+        questions: [
+            { q:'判断：下图是否是四连方？（由4个小正方形，每两个至少共享一条完整的边）', hint:'仔细数每个图形中的小正方形数量，再检查连接方式。' },
+            { q:'说一说：四连方一共有几种基本形状？请写出它们的名称。', hint:'回忆课上介绍的5种基本形状：I、L、J、T、S。' },
+            { q:'填一填：一字形四连方有___个小正方形，它们排成___排___列。', hint:'一字形四连方是一条直线，4个正方形一字排开。' },
+            { q:'连一连：将左边的四连方名称与右边的形状图案连线匹配。', hint:'先认清每种形状的轮廓特征：一字形直，L形弯，T形像字母T……' }
+        ]
+    },
+    'exercise-2': {
+        title: '综合练习',
+        mode:  'exercise',
+        tag:   'mixed',
+        questions: [
+            { q:'用2个I形四连方，能拼成一个长方形吗？如果能，请画出来；如果不能，说明理由。', hint:'2个I形共8个小正方形，想想8个正方形能构成什么尺寸的长方形？' },
+            { q:'L形四连方旋转90°后，与哪种四连方的形状相同？', hint:'将L形顺时针旋转90°，观察结果是否与J形相同。' },
+            { q:'用3个四连方能拼成3×4的长方形吗？写出一种方案（说明用了哪3种形状）。', hint:'3×4=12格，3个四连方共12个方块，恰好填满。可以用L+J+I试试。' },
+            { q:'比较I形和S形四连方：它们都可以通过旋转来改变方向，但哪些变化是相同的图形？', hint:'有些形状旋转180°后与原来完全一样，称为有旋转对称性。' }
+        ]
+    },
+    'exercise-3': {
+        title: '拓展练习',
+        mode:  'exercise',
+        tag:   'extend',
+        questions: [
+            { q:'探究：5种基本四连方中，哪几种具有轴对称性？哪几种是中心对称图形？', hint:'轴对称：沿某条直线折叠后能完全重合；中心对称：绕中心旋转180°后能重合。' },
+            { q:'创意拼图：用你选择的4个不同的四连方，拼出一个有趣的图案，并给它起一个名字。', hint:'可以拼动物、交通工具、建筑物……发挥你的想象力！' },
+            { q:'思考：如果用5个四连方（共20个小方块），能拼成一个4×5的长方形吗？动手试试。', hint:'这是著名的五连方拼图问题的简化版，有多种解法！' },
+            { q:'拓展思考：除了长方形，用4个四连方（共16个方块）还能拼出哪些对称图形？', hint:'试试正方形（4×4）、L形大图案、T形大图案……' }
+        ]
+    },
+    'exercise-4': {
+        title: '挑战练习',
+        mode:  'exercise',
+        tag:   'challenge',
+        questions: [
+            { q:'挑战1：只用一字形四连方，在8×16的网格中，最多能放几个？它们之间能否无缝拼合（不留空格）？', hint:'8×16=128格，每个一字形占4格，最多可放32个；竖放或横放看能否铺满全部格子。' },
+            { q:'挑战2：用2个L形和2个J形四连方，尝试拼出一个4×4的正方形。', hint:'L形和J形互为镜像，它们能很好地配合，先把2个L和2个J各自组对，再合并。' },
+            { q:'挑战3：证明或反驳——任意2个相同的四连方，都能拼成一个长方形。', hint:'用一字形能拼1×8或2×4长方形；用田字形能拼2×4长方形；S形呢？T形呢？' },
+            { q:'挑战4（思维拓展）：如果把"五连方"（由5个小正方形组成）也算进来，一共有几种基本形状？你能找到所有12种吗？', hint:'5连方共12种基本形状，是著名的五连方（Pentomino）拼图，广泛用于数学竞赛。' }
+        ]
+    },
+    'summary-1': {
+        title: '一、四连方的定义',
+        mode: 'summary',
+        content: `
+            <div class="summary-card">
+                <h4>📐 四连方的定义</h4>
+                <p><strong>定义：</strong>由<strong>4个同样的小正方形</strong>通过<strong>边与边重合</strong>连接而成的图形，叫做"四连方"。</p>
+                <div class="highlight">拼接规则：必须边与边完全重合，仅角与角接触 <strong>不行</strong>！</div>
+            </div>
+        `
+    },
+    'summary-2': {
+        title: '二、四连方的种类',
+        mode: 'summary',
+        content: `
+            <div class="summary-card">
+                <h4>🧩 四连方的种类</h4>
+                <table class="summary-table">
+                    <tr>
+                        <th>名称</th>
+                        <th>形状</th>
+                        <th>特征口诀</th>
+                        <th>注意</th>
+                    </tr>
+                    <tr>
+                        <td><strong>一字形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-I">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>一字长蛇排成排</td>
+                        <td>只能横放或竖放</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-L">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell"></div>
+                                    <div class="shape-cell"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>直角拐弯像拐角</td>
+                        <td>翻转后和反L是同一种</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-T">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>像字母T站中间</td>
+                        <td>中间凸出一块</td>
+                    </tr>
+                    <tr>
+                        <td><strong>田字形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-O">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>方正平稳四四方</td>
+                        <td>2×2的正方形</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Z形</strong></td>
+                        <td>
+                            <div class="shape-graphic shape-Z">
+                                <div class="shape-row">
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell"></div>
+                                </div>
+                                <div class="shape-row">
+                                    <div class="shape-cell"></div>
+                                    <div class="shape-cell filled"></div>
+                                    <div class="shape-cell filled"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>像字母Z错开排</td>
+                        <td>翻转后和S形是同一种</td>
+                    </tr>
+                </table>
+            </div>
+        `
+    },
+    'summary-3': {
+        title: '三、判断是否"不同"的形状？',
+        mode: 'summary',
+        content: `
+            <div class="summary-card">
+                <h4>🔍 判断是否"不同"的形状</h4>
+                <p><strong>判断方法：</strong>把图形<strong>旋转</strong>或<strong>翻转</strong>，如果能完全重合，就是<strong>同一种</strong>！</p>
+                <div class="example-box">
+                    <p><strong>例如：</strong></p>
+                    <ul>
+                        <li>L形 ←翻转→ "反L" → 能重合 → 同一种！</li>
+                        <li>Z形 ←翻转→ "S形" → 能重合 → 同一种！</li>
+                    </ul>
+                </div>
+                <div class="highlight">小窍门：找全所有四连方时，可以按 <strong>"排数"</strong> 分类：先找1排的，再找2排的……这样不会漏！</div>
+            </div>
+        `
+    },
+    'summary-4': {
+        title: '四、易错点提醒',
+        mode: 'summary',
+        content: `
+            <div class="summary-card">
+                <h4>⚠️ 易错点提醒</h4>
+                <table class="summary-table">
+                    <tr>
+                        <th>错误做法</th>
+                        <th>正确做法</th>
+                    </tr>
+                    <tr>
+                        <td>对角摆放</td>
+                        <td>必须边与边重合，角碰角不算</td>
+                    </tr>
+                    <tr>
+                        <td>把"方向不同"当"形状不同"</td>
+                        <td>先旋转、翻转试试，能重合就是同一种</td>
+                    </tr>
+                </table>
+            </div>
+        `
+    },
+    'summary-5': {
+        title: '五、生活中的四连方',
+        mode: 'summary',
+        content: `
+            <div class="summary-card">
+                <h4>🌍 生活中的四连方</h4>
+                <ul>
+                    <li><strong>俄罗斯方块</strong>：经典游戏就是四连方的实际应用！</li>
+                    <li>用四连方拼长方形：4×5的长方形需要<strong>5个</strong>四连方（因为 4×5=20，20÷4=5）</li>
+                </ul>
+            </div>
+        `
+    },
+    'summary-6': {
+        title: '六、课后挑战',
+        mode: 'summary',
+        content: `
+            <div class="summary-card">
+                <h4>🚀 课后挑战</h4>
+                <p><strong>想一想：</strong>如果用<strong>5个</strong>同样的小正方形拼在一起（叫做"五连方"），能拼出几种不同的形状呢？</p>
+                <div class="highlight"><strong>提示：</strong>也可以用"按排数分类"的方法来找哦！</div>
+            </div>
+        `
+    }
+};
+
+// ============================================================
+// 切换顶部标签
+// ============================================================
+function switchTab(tab) {
+    try {
+        currentTab = tab;
+        currentSub = null;
+
+        // 更新顶部 active 样式
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        const tabEl = document.getElementById('tab-' + tab);
+        if (!tabEl) {
+            alert('错误：找不到顶部标签 #tab-' + tab);
+            return;
+        }
+        tabEl.classList.add('active');
+
+        // 渲染左侧菜单
+        const sidebar = document.getElementById('leftSidebar');
+        if (!sidebar) {
+            alert('错误：找不到左侧栏 #leftSidebar');
+            return;
+        }
+        sidebar.innerHTML = '';
+        
+        const nav = NAV[tab];
+        if (!nav) {
+            alert('错误：NAV["' + tab + '"] 未定义！');
+            return;
+        }
+
+        if (!nav.subs || nav.subs.length === 0) {
+            alert('错误：' + nav.label + ' 没有子菜单！');
+            return;
+        }
+        
+        nav.subs.forEach(sub => {
+            const btn = document.createElement('div');
+            btn.className = 'sidebar-btn';
+            btn.id = 'sub-' + sub.key;
+            btn.textContent = sub.label;
+            // 长文本按钮缩小字体，避免换行
+            if (sub.label.length > 12) {
+                btn.classList.add('small-text');
+            }
+            btn.onclick = () => switchSub(sub.key);
+            sidebar.appendChild(btn);
+        });
+
+        // 自动选中第一个子菜单
+        switchSub(nav.subs[0].key);
+    } catch (e) {
+        alert('switchTab 错误：' + e.message);
+    }
+}
+
+// ============================================================
+// 切换子菜单
+// ============================================================
+function switchSub(key) {
+    currentSub = key;
+
+    // 更新左侧 active
+    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('sub-' + key);
+    if (btn) btn.classList.add('active');
+
+    // 隐藏欢迎屏，显示内容面板
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    document.getElementById('contentPanel').classList.remove('hidden');
+
+    const cfg = CONTENT[key];
+    if (!cfg) return;
+
+    // 设置标题描述
+    document.getElementById('panelTitle').textContent = cfg.title;
+    document.getElementById('panelDesc').textContent  = cfg.desc || '';
+    
+    // 如果标题为空或判断题/填空题模式，隐藏panelHeader
+    const panelHeader = document.getElementById('panelHeader');
+    if (!cfg.title || cfg.mode === 'exercise-fill' || cfg.mode === 'exercise-judge') {
+        panelHeader.classList.add('hidden');
+    } else {
+        panelHeader.classList.remove('hidden');
+    }
+
+    // 隐藏所有子区域
+    document.getElementById('tetrominoSection').classList.add('hidden');
+    document.getElementById('dragSquaresSection').classList.add('hidden');
+    document.getElementById('exerciseSection').classList.add('hidden');
+    document.getElementById('summarySection').classList.add('hidden');
+
+    if (cfg.mode === 'tetromino') {
+        renderTetrominoMode(cfg);
+    } else if (cfg.mode === 'drag-squares') {
+        renderDragSquaresMode(cfg);
+    } else if (cfg.mode === 'exercise' || cfg.mode === 'exercise-fill' || cfg.mode === 'exercise-judge' || cfg.mode === 'exercise-choice' || cfg.mode === 'exercise-puzzle') {
+        renderExerciseMode(cfg);
+    } else if (cfg.mode === 'summary') {
+        renderSummaryMode();
+    } else if (cfg.mode === 'practice') {
+        // 拼任意长方形/正方形/填充图形：首次进入不随机生成高亮，等用户点对应按钮
+        const skipGenerate = (cfg.practiceType === 'rectangle' || cfg.practiceType === 'square' || cfg.practiceType === 'fill');
+        renderPracticeMode(cfg, skipGenerate);
+    }
+}
+
+// ============================================================
+// 模式1：拼图模式
+// ============================================================
+function renderTetrominoMode(cfg) {
+    // 重置选中状态
+    selectedShape = null;
+
+    // 显示标题栏
+    document.getElementById('panelHeader').classList.remove('hidden');
+    document.getElementById('panelTitle').textContent = cfg.title;
+    document.getElementById('panelDesc').textContent  = cfg.desc || '';
+
+    const sec = document.getElementById('tetrominoSection');
+    sec.classList.remove('hidden');
+
+    // 重置旋转翻转状态
+    cfg.shapes.forEach(t => { shapeRotation[t] = 0; shapeFlip[t] = null; });
+
+    buildShapePool(cfg.shapes);
+    buildGrid(cfg.gridClass);
+}
+
+// ============================================================
+// 模式2：练习题模式
+// ============================================================
+function renderExerciseMode(cfg) {
+    // 显示标题栏
+    // 填空题/判断题/选择题/巧手拼图模式：隐藏标题栏
+    if (cfg.mode === 'exercise-fill' || cfg.mode === 'exercise-judge' || cfg.mode === 'exercise-choice' || cfg.mode === 'exercise-puzzle') {
+        document.getElementById('panelHeader').classList.add('hidden');
+    } else {
+        document.getElementById('panelHeader').classList.remove('hidden');
+        document.getElementById('panelTitle').textContent = cfg.title;
+        document.getElementById('panelDesc').textContent  = cfg.desc || '';
+    }
+
+    const sec = document.getElementById('exerciseSection');
+    sec.classList.remove('hidden');
+    sec.innerHTML = '';
+
+    // 填空题模式
+    if (cfg.mode === 'exercise-fill') {
+        sec.innerHTML = `
+            <style>
+                .fill-container {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 20px;
+                    scrollbar-width: thin;
+                    scrollbar-color: #3b82f6 #e0f2fe;
+                }
+                .fill-container::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .fill-container::-webkit-scrollbar-track {
+                    background: #e0f2fe;
+                    border-radius: 4px;
+                }
+                .fill-container::-webkit-scrollbar-thumb {
+                    background: #3b82f6;
+                    border-radius: 4px;
+                }
+                .fill-container::-webkit-scrollbar-thumb:hover {
+                    background: #2563eb;
+                }
+                .fill-question-card {
+                    background: white;
+                    border-radius: 16px;
+                    padding: 20px 24px;
+                    margin-bottom: 16px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    border-left: 4px solid #3b82f6;
+                }
+                .fill-question-text {
+                    font-size: 1.05rem;
+                    color: #374151;
+                    line-height: 2;
+                    margin-bottom: 12px;
+                }
+                .fill-question-text strong {
+                    color: #374151;
+                    margin-right: 6px;
+                }
+                .fill-input {
+                    border: 2px solid #d1d5db;
+                    border-radius: 8px;
+                    padding: 6px 12px;
+                    font-size: 1rem;
+                    width: 80px;
+                    text-align: center;
+                    color: #1e40af;
+                    font-weight: 600;
+                    transition: all 0.2s;
+                    background-color: white;
+                }
+                .fill-input:focus {
+                    outline: none;
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+                }
+                /* 有内容的正确输入框 - 绿色 */
+                .fill-input.correct {
+                    border-color: #22c55e;
+                    background: #f0fdf4;
+                    color: #16a34a;
+                }
+                /* 有内容的错误输入框 - 红色 */
+                .fill-input.incorrect {
+                    border-color: #ef4444;
+                    background: #fef2f2;
+                    color: #dc2626;
+                }
+                .fill-check-btn {
+                    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px 20px;
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    margin-top: 8px;
+                    transition: all 0.2s;
+                }
+                .fill-check-btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+                }
+                .fill-correct-answer {
+                    display: none;
+                    margin-top: 8px;
+                    padding: 8px 12px;
+                    background: #f0fdf4;
+                    border-radius: 8px;
+                    font-size: 0.9rem;
+                    color: #16a34a;
+                }
+                .fill-correct-answer.show {
+                    display: block;
+                }
+                .fill-input.locked {
+                    cursor: not-allowed;
+                }
+                .fill-question-card.submitted .fill-input {
+                    pointer-events: none;
+                }
+            </style>
+            <div class="fill-container" id="fillContainer"></div>
+        `;
+        
+        const fillContainer = document.getElementById('fillContainer');
+        
+        cfg.questions.forEach((item, idx) => {
+            const parts = item.q.split('____');
+            let html = '';
+            parts.forEach((part, i) => {
+                html += `<span>${part}</span>`;
+                if (i < parts.length - 1) {
+                    html += `<input type="text" class="fill-input" id="fill-${idx}-${i}" placeholder="请填写">`;
+                }
+            });
+
+            const card = document.createElement('div');
+            card.className = 'fill-question-card';
+            card.innerHTML = `
+                <div class="fill-question-text"><strong>${idx + 1}.</strong> ${html}</div>
+                <div class="fill-correct-answer" id="answer-${idx}">正确答案：${Array.isArray(item.answer) ? item.answer.join(' 或 ') : item.answer}</div>
+            `;
+            fillContainer.appendChild(card);
+            
+            // 为本题的所有输入框添加实时检查事件
+            let i = 0;
+            let input = document.getElementById('fill-' + idx + '-' + i);
+            while (input) {
+                input.addEventListener('input', () => onFillInput(idx));
+                i++;
+                input = document.getElementById('fill-' + idx + '-' + i);
+            }
+        });
+
+        // 添加"查看全部答案"按钮
+        const allAnswerBtn = document.createElement('button');
+        allAnswerBtn.className = 'fill-check-btn';
+        allAnswerBtn.style.display = 'block';
+        allAnswerBtn.style.margin = '20px auto 20px';
+        allAnswerBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        allAnswerBtn.textContent = '查看全部答案';
+        allAnswerBtn.onclick = function() {
+            cfg.questions.forEach((item, idx) => {
+                // 先检查答案并添加高亮样式
+                checkFillAnswer(idx, item.answer);
+                // 再显示正确答案
+                const ansDiv = document.getElementById('answer-' + idx);
+                if (ansDiv) ansDiv.classList.add('show');
+            });
+        };
+        fillContainer.appendChild(allAnswerBtn);
+        return;
+    }
+
+    // 判断题模式
+    if (cfg.mode === 'exercise-judge') {
+        // 重置用户答案记录
+        window.judgeAnswers = {};
+        
+        sec.innerHTML = `
+            <style>
+                .judge-container {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 20px;
+                    scrollbar-width: thin;
+                    scrollbar-color: #3b82f6 #e0f2fe;
+                }
+                .judge-container::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .judge-container::-webkit-scrollbar-track {
+                    background: #e0f2fe;
+                    border-radius: 4px;
+                }
+                .judge-container::-webkit-scrollbar-thumb {
+                    background: #3b82f6;
+                    border-radius: 4px;
+                }
+                .judge-container::-webkit-scrollbar-thumb:hover {
+                    background: #2563eb;
+                }
+                .judge-card {
+                    background: white;
+                    border-radius: 16px;
+                    padding: 20px 24px;
+                    margin-bottom: 16px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    border-left: 4px solid #3b82f6;
+                }
+                .judge-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .judge-question-text {
+                    flex: 1;
+                    font-size: 1.05rem;
+                    color: #374151;
+                    line-height: 1.8;
+                }
+                .judge-question-text strong {
+                    color: #374151;
+                    margin-right: 6px;
+                }
+                .judge-buttons {
+                    display: flex;
+                    gap: 12px;
+                    flex-shrink: 0;
+                }
+                .judge-btn {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    border: 3px solid #dbeafe;
+                    background: white;
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .judge-btn:hover {
+                    border-color: #3b82f6;
+                    transform: scale(1.05);
+                }
+                .judge-btn.selected-correct {
+                    background: #22c55e;
+                    border-color: #22c55e;
+                    color: white;
+                }
+                .judge-btn.selected-wrong {
+                    background: #ef4444;
+                    border-color: #ef4444;
+                    color: white;
+                    font-weight: 700;
+                    box-shadow: 0 0 0 4px rgba(239,68,68,0.4);
+                    animation: judge-wrong-pulse 0.5s ease-in-out 3;
+                }
+                @keyframes judge-wrong-pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.1); }
+                }
+                .judge-btn.locked {
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+                .judge-btn.locked:hover {
+                    transform: none;
+                }
+                .judge-answer-box {
+                    display: none;
+                    margin-top: 8px;
+                    padding: 10px 14px;
+                    background: #f0fdf4;
+                    border-radius: 8px;
+                    font-size: 0.95rem;
+                    color: #16a34a;
+                    flex-shrink: 0;
+                }
+                .judge-answer-box.show {
+                    display: block;
+                }
+                /* 判断题查看全部答案按钮 - 与填空题样式一致 */
+                .judge-container .fill-check-btn {
+                    display: block;
+                    margin: 20px auto;
+                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 10px 28px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .judge-container .fill-check-btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+                }
+            </style>
+            <div class="judge-container" id="judgeContainer"></div>
+        `;
+        
+        const judgeContainer = document.getElementById('judgeContainer');
+        
+        cfg.questions.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'judge-card';
+            card.innerHTML = `
+                <div class="judge-row">
+                    <div class="judge-question-text"><strong>${idx + 1}.</strong> ${item.q}</div>
+                    <div class="judge-buttons">
+                        <button class="judge-btn" id="judge-right-${idx}" onclick="selectJudgeAnswer(${idx}, true)">√</button>
+                        <button class="judge-btn" id="judge-wrong-${idx}" onclick="selectJudgeAnswer(${idx}, false)">×</button>
+                    </div>
+                </div>
+                <div class="judge-answer-box" id="judge-answer-${idx}">正确答案：${item.answer ? '√' : '×'}</div>
+            `;
+            judgeContainer.appendChild(card);
+        });
+        
+        // 查看全部答案按钮
+        const totalQuestions = cfg.questions.length;
+        const submitBtn = document.createElement('button');
+        submitBtn.id = 'judgeSubmitBtn';
+        submitBtn.className = 'fill-check-btn';
+        submitBtn.textContent = '查看全部答案';
+        submitBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        submitBtn.onclick = function() {
+            cfg.questions.forEach((item, idx) => {
+                const userAns = window.judgeAnswers ? window.judgeAnswers[idx] : undefined;
+                const correctAns = item.answer;
+                const rightBtn = document.getElementById('judge-right-' + idx);
+                const wrongBtn = document.getElementById('judge-wrong-' + idx);
+
+                // 如果用户已作答且答错，高亮错误答案（红色）
+                if (userAns !== undefined && userAns !== correctAns) {
+                    if (userAns === true && rightBtn) {
+                        rightBtn.classList.add('selected-wrong');
+                    } else if (wrongBtn) {
+                        wrongBtn.classList.add('selected-wrong');
+                    }
+                }
+
+                // 锁定按钮不可再选
+                if (rightBtn) { rightBtn.classList.add('locked'); rightBtn.onclick = null; }
+                if (wrongBtn) { wrongBtn.classList.add('locked'); wrongBtn.onclick = null; }
+
+                // 显示正确答案文本
+                const ansDiv = document.getElementById('judge-answer-' + idx);
+                if (ansDiv) ansDiv.classList.add('show');
+            });
+        };
+        judgeContainer.appendChild(submitBtn);
+        return;
+    }
+
+    // 选择题模式
+    if (cfg.mode === 'exercise-choice') {
+        // 隐藏顶栏
+        document.getElementById('panelHeader').classList.add('hidden');
+        // 重置用户答案记录
+        window.choiceAnswers = {};
+        sec.innerHTML = `
+            <style>
+                .choice-container {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 20px;
+                    scrollbar-width: thin;
+                    scrollbar-color: #3b82f6 #e0f2fe;
+                }
+                .choice-container::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .choice-container::-webkit-scrollbar-track {
+                    background: #e0f2fe;
+                    border-radius: 4px;
+                }
+                .choice-container::-webkit-scrollbar-thumb {
+                    background: #3b82f6;
+                    border-radius: 4px;
+                }
+                .choice-container::-webkit-scrollbar-thumb:hover {
+                    background: #2563eb;
+                }
+                .choice-card {
+                    background: white;
+                    border-radius: 16px;
+                    padding: 20px 24px;
+                    margin-bottom: 16px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    border-left: 4px solid #3b82f6;
+                }
+                .choice-question-text {
+                    font-size: 1.05rem;
+                    color: #374151;
+                    line-height: 1.8;
+                    margin-bottom: 14px;
+                }
+                .choice-question-text strong {
+                    color: #000;
+                    margin-right: 4px;
+                }
+                .choice-options {
+                    display: flex;
+                    gap: 10px;
+                }
+                .choice-option {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 10px 8px;
+                    background: #f8fafc;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    font-size: 0.9rem;
+                    color: #374151;
+                    text-align: center;
+                }
+                .choice-option:hover {
+                    border-color: #3b82f6;
+                    background: #eff6ff;
+                }
+                .choice-option.selected-correct {
+                    background: #dcfce7;
+                    border-color: #22c55e;
+                    color: #16a34a;
+                    font-weight: 600;
+                }
+                .choice-option.selected-wrong {
+                    background: #fef2f2;
+                    border-color: #ef4444;
+                    color: #dc2626;
+                    font-weight: 700;
+                    border-width: 3px;
+                    box-shadow: 0 0 0 4px rgba(239,68,68,0.3);
+                    animation: choice-wrong-pulse 0.6s ease-in-out 3;
+                }
+                @keyframes choice-wrong-pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.03); }
+                }
+                .choice-option.locked {
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+                .choice-option.locked:hover {
+                    border-color: #e2e8f0;
+                    background: #f8fafc;
+                }
+                .choice-answer-box {
+                    display: none;
+                    margin-top: 12px;
+                    padding: 10px 14px;
+                    background: #f0fdf4;
+                    border-radius: 8px;
+                    font-size: 0.95rem;
+                    color: #16a34a;
+                }
+                .choice-answer-box.show {
+                    display: block;
+                }
+                /* 选择题查看全部答案按钮 */
+                .choice-container .fill-check-btn {
+                    display: block;
+                    margin: 20px auto;
+                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 10px 28px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .choice-container .fill-check-btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+                }
+            </style>
+            <div class="choice-container" id="choiceContainer"></div>
+        `;
+        
+        const choiceContainer = document.getElementById('choiceContainer');
+        
+        cfg.questions.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'choice-card';
+            // 分离题号与题目文字
+            const qText = item.q;
+            const dotIdx = qText.indexOf('.');
+            const numPart = dotIdx >= 0 ? qText.substring(0, dotIdx + 1) : (idx + 1) + '.';
+            const restPart = dotIdx >= 0 ? qText.substring(dotIdx + 1).trim() : qText;
+            let optionsHtml = '';
+            item.options.forEach((opt, optIdx) => {
+                optionsHtml += `<div class="choice-option" id="choice-${idx}-${optIdx}" onclick="selectChoiceAnswer(${idx}, ${optIdx})">${opt}</div>`;
+            });
+            card.innerHTML = `
+                <div class="choice-question-text"><strong>${numPart}</strong> ${restPart}</div>
+                <div class="choice-options">${optionsHtml}</div>
+                <div class="choice-answer-box" id="choice-answer-${idx}">正确答案：${item.options[item.answer]}</div>
+            `;
+            choiceContainer.appendChild(card);
+        });
+        
+        // 添加"查看全部答案"按钮
+        const allAnswerBtn = document.createElement('button');
+        allAnswerBtn.className = 'fill-check-btn';
+        allAnswerBtn.textContent = '查看全部答案';
+        allAnswerBtn.onclick = function() {
+            cfg.questions.forEach((item, idx) => {
+                const userAns = window.choiceAnswers ? window.choiceAnswers[idx] : undefined;
+                const correctAns = item.answer;
+
+                // 如果用户已作答且答错，高亮错误答案（红色）
+                if (userAns !== undefined && userAns !== correctAns) {
+                    const wrongOptEl = document.getElementById('choice-' + idx + '-' + userAns);
+                    if (wrongOptEl) {
+                        wrongOptEl.classList.add('selected-wrong');
+                    }
+                }
+
+                // 锁定选项不可再选
+                const card = document.getElementById('choice-' + idx + '-0');
+                if (card) {
+                    const parent = card.parentElement;
+                    if (parent) {
+                        const options = parent.querySelectorAll('.choice-option');
+                        options.forEach(opt => {
+                            opt.classList.add('locked');
+                            opt.onclick = null;
+                        });
+                    }
+                }
+
+                // 显示正确答案文本
+                const ansDiv = document.getElementById('choice-answer-' + idx);
+                if (ansDiv) ansDiv.classList.add('show');
+            });
+        };
+        choiceContainer.appendChild(allAnswerBtn);
+        return;
+    }
+
+    // 巧手拼图模式 - 上下两栏布局
+    if (cfg.mode === 'exercise-puzzle') {
+        // 隐藏顶栏
+        document.getElementById('panelHeader').classList.add('hidden');
+        sec.innerHTML = `
+            <style>
+                .puzzle-wrap {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                    overflow: hidden;
+                }
+                .puzzle-desc {
+                    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                    border-left: 4px solid #3b82f6;
+                    padding: 14px 20px;
+                    border-radius: 12px;
+                    font-size: 1rem;
+                    color: #1e40af;
+                    line-height: 1.6;
+                    font-weight: 500;
+                    box-shadow: 0 2px 8px rgba(59,130,246,0.1);
+                }
+                .puzzle-canvas-wrap {
+                    flex: 1;
+                    background: white;
+                    border-radius: 16px;
+                    padding: 20px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 14px;
+                    overflow: hidden;
+                }
+                /* 画布网格：4行5列，放大 */
+                .puzzle-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 70px);
+                    grid-template-rows: repeat(4, 70px);
+                    gap: 3px;
+                    background: #e2e8f0;
+                    padding: 3px;
+                    border-radius: 8px;
+                }
+                .puzzle-cell {
+                    width: 70px;
+                    height: 70px;
+                    background: white;
+                    border-radius: 5px;
+                    transition: all 0.15s;
+                    position: relative;
+                }
+                .puzzle-cell.drag-over {
+                    background: #dbeafe;
+                    border: 2px dashed #3b82f6;
+                }
+                .puzzle-cell.filled {
+                    position: relative;
+                }
+                .puzzle-cell .sq {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 3px;
+                    cursor: grab;
+                    box-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+                }
+                /* 形状颜色 */
+                .shape-I .shape-block.filled { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+                .shape-L .shape-block.filled { background: linear-gradient(135deg, #fb923c, #f97316); }
+                .shape-T .shape-block.filled { background: linear-gradient(135deg, #c084fc, #a855f7); }
+                .shape-Z .shape-block.filled { background: linear-gradient(135deg, #f87171, #ef4444); }
+                .shape-O .shape-block.filled { background: linear-gradient(135deg, #f472b6, #ec4899); }
+            </style>
+            <div class="puzzle-wrap">
+                <div class="puzzle-desc">${cfg.taskDesc}</div>
+                <div class="puzzle-canvas-wrap">
+                    <div class="puzzle-grid" id="puzzleGrid"></div>
+                </div>
+            </div>
+        `;
+
+        // 初始化巧手拼图
+        initPuzzleMode();
+        return;
+    }
+
+    // 其他练习模式
+    const tagMap = { basic:'基础练习', mixed:'综合练习', extend:'拓展练习', challenge:'挑战练习' };
+    const tagClass = { basic:'tag-basic', mixed:'tag-mixed', extend:'tag-extend', challenge:'tag-challenge' };
+
+    cfg.questions.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.innerHTML = `
+            <span class="tag ${tagClass[cfg.tag]}">${tagMap[cfg.tag]}</span>
+            <h4>第 ${idx+1} 题</h4>
+            <p>${item.q}</p>
+            <details style="margin-top:12px;">
+                <summary style="cursor:pointer;color:#3b82f6;font-size:0.9rem;font-weight:600;user-select:none;">💡 点击查看提示</summary>
+                <p style="margin-top:8px;padding:10px;background:#f0f9ff;border-radius:8px;font-size:0.95rem;color:#1e40af;">${item.hint}</p>
+            </details>
+        `;
+        sec.appendChild(card);
+    });
+}
+
+// 填空题检查答案（支持多个正确答案模式，支持静默模式）
+function checkFillAnswer(questionIdx, correctAnswer, silent = false) {
+    // 收集用户答案
+    const userAnswers = [];
+    let i = 0;
+    let input = document.getElementById('fill-' + questionIdx + '-' + i);
+    while (input) {
+        userAnswers.push(input.value.trim());
+        i++;
+        input = document.getElementById('fill-' + questionIdx + '-' + i);
+    }
+    
+    // 支持字符串或数组格式的答案
+    const patterns = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer];
+    
+    // 尝试每个答案模式
+    let matchedPattern = null;
+    for (const pattern of patterns) {
+        const correctParts = pattern.split(',').map(s => s.trim());
+        if (correctParts.length !== userAnswers.length) continue;
+        
+        const matches = correctParts.every((part, i) => userAnswers[i] === part);
+        if (matches) {
+            matchedPattern = pattern;
+            break;
+        }
+    }
+    
+    // 更新UI
+    if (matchedPattern) {
+        // 全部正确
+        userAnswers.forEach((_, i) => {
+            const input = document.getElementById('fill-' + questionIdx + '-' + i);
+            if (input) {
+                input.classList.remove('incorrect');
+                input.classList.add('correct');
+            }
+        });
+        if (!silent) {
+            showTetrominoMessage('🎉 回答正确！');
+            setTimeout(hideTetrominoMessage, 2000);
+        }
+    } else {
+        // 有误 - 基于第一个模式标记
+        const firstPattern = patterns[0].split(',').map(s => s.trim());
+        firstPattern.forEach((ans, i) => {
+            const input = document.getElementById('fill-' + questionIdx + '-' + i);
+            if (input) {
+                if (userAnswers[i] === ans) {
+                    input.classList.remove('incorrect');
+                    input.classList.add('correct');
+                } else {
+                    input.classList.remove('correct');
+                    input.classList.add('incorrect');
+                }
+            }
+        });
+        if (!silent && userAnswers.every(a => a !== '')) {
+            showTetrominoMessage('还有错误，请检查后重新填写！');
+            setTimeout(hideTetrominoMessage, 2000);
+        }
+    }
+}
+
+// 填空题输入时实时检查（填完一空高亮锁定，全部填完锁定整个题目）
+function onFillInput(questionIdx) {
+    const cfg = CONTENT['exercise-fill'];
+    if (!cfg || !cfg.questions || !cfg.questions[questionIdx]) return;
+    
+    const correctAnswer = cfg.questions[questionIdx].answer;
+    const patterns = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer];
+    
+    // 收集所有输入框
+    const inputs = [];
+    let i = 0;
+    let input = document.getElementById('fill-' + questionIdx + '-' + i);
+    while (input) {
+        inputs.push(input);
+        i++;
+        input = document.getElementById('fill-' + questionIdx + '-' + i);
+    }
+    
+    // 检查每个输入框
+    inputs.forEach((inp, idx) => {
+        const userAns = inp.value.trim();
+        
+        // 获取该位置的正确答案（尝试所有模式）
+        let isCorrect = false;
+        for (const pattern of patterns) {
+            const correctParts = pattern.split(',').map(s => s.trim());
+            if (correctParts[idx] === userAns) {
+                isCorrect = true;
+                break;
+            }
+        }
+        
+        // 如果填写了内容，立即高亮并锁定
+        if (userAns !== '') {
+            inp.classList.remove('incorrect');
+            inp.classList.add(isCorrect ? 'correct' : 'incorrect');
+            inp.readOnly = true; // 锁定输入框
+        }
+    });
+    
+    // 检查是否所有空都已填写，如果填完则锁定整个题目
+    const allFilled = inputs.every(inp => inp.value.trim() !== '');
+    if (allFilled) {
+        // 获取题目卡片并添加已提交样式
+        const card = inputs[0].closest('.fill-question-card');
+        if (card) {
+            card.classList.add('submitted');
+        }
+    }
+}
+
+// 判断题选择答案（立即显示对错）
+function selectJudgeAnswer(questionIdx, userAnswer) {
+    const correctAnswer = CONTENT['exercise-judge'].questions[questionIdx].answer;
+    const rightBtn = document.getElementById('judge-right-' + questionIdx);
+    const wrongBtn = document.getElementById('judge-wrong-' + questionIdx);
+    const answerBox = document.getElementById('judge-answer-' + questionIdx);
+    
+    // 记录用户选择
+    if (!window.judgeAnswers) window.judgeAnswers = {};
+    window.judgeAnswers[questionIdx] = userAnswer;
+    
+    // 锁定按钮（不能更改选择）
+    rightBtn.classList.add('locked');
+    wrongBtn.classList.add('locked');
+    rightBtn.onclick = null;
+    wrongBtn.onclick = null;
+    
+    // 立即显示对错高亮
+    if (userAnswer === correctAnswer) {
+        // 答对了
+        if (userAnswer === true) {
+            rightBtn.classList.add('selected-correct');
+        } else {
+            wrongBtn.classList.add('selected-correct');
+        }
+    } else {
+        // 答错了
+        if (userAnswer === true) {
+            rightBtn.classList.add('selected-wrong');
+            wrongBtn.classList.add('selected-correct'); // 显示正确答案
+        } else {
+            wrongBtn.classList.add('selected-wrong');
+            rightBtn.classList.add('selected-correct'); // 显示正确答案
+        }
+    }
+}
+
+
+// 选择题选择答案
+function selectChoiceAnswer(questionIdx, optIdx) {
+    const correctAnswer = CONTENT['exercise-choice'].questions[questionIdx].answer;
+    
+    // 记录用户答案
+    if (!window.choiceAnswers) window.choiceAnswers = {};
+    window.choiceAnswers[questionIdx] = optIdx;
+    
+    // 锁定该题所有选项
+    const card = document.getElementById('choice-' + questionIdx + '-0').parentElement;
+    const options = card.querySelectorAll('.choice-option');
+    options.forEach(opt => {
+        opt.classList.add('locked');
+        opt.onclick = null;
+    });
+    
+    const selectedOpt = document.getElementById('choice-' + questionIdx + '-' + optIdx);
+    
+    if (optIdx === correctAnswer) {
+        // 答对：选中选项变绿色
+        selectedOpt.classList.add('selected-correct');
+    } else {
+        // 答错：选中选项变红色
+        selectedOpt.classList.add('selected-wrong');
+    }
+}
+
+// 填空题显示提示
+// ============================================================
+// 模式3：总结模式
+// ============================================================
+function renderSummaryMode() {
+    const cfg = CONTENT[currentSub];
+    // 隐藏标题栏（因为左侧按钮已经是标题）
+    document.getElementById('panelHeader').classList.add('hidden');
+    const sec = document.getElementById('summarySection');
+    sec.classList.remove('hidden');
+    if (cfg && cfg.content) {
+        sec.innerHTML = cfg.content;
+    } else {
+        sec.innerHTML = '<div class="summary-card"><p>内容待补充...</p></div>';
+    }
+}
+
+// ============================================================
+// 模式4：拖拽正方形模式（认识四连方）
+// ============================================================
+let placedSquares = []; // 存储已放置正方形的位置 [{row, col, squareId}]
+let originalPositions = []; // 记录原始相对位置
+
+function renderDragSquaresMode(cfg) {
+    // 显示标题栏
+    document.getElementById('panelHeader').classList.remove('hidden');
+    document.getElementById('panelTitle').textContent = cfg.title;
+    document.getElementById('panelDesc').textContent  = cfg.desc || '';
+
+    const sec = document.getElementById('dragSquaresSection');
+    sec.classList.remove('hidden');
+
+    // 重置状态
+    placedSquares = [];
+    originalPositions = [];
+
+    // 显示原始正方形
+    document.querySelectorAll('.draggable-square').forEach(sq => {
+        sq.style.visibility = 'visible';
+    });
+
+    // 构建网格
+    buildSquaresGrid(cfg.gridClass);
+
+    // 初始化拖拽事件
+    initSquaresDragAndDrop();
+}
+
+// 构建正方形网格
+function buildSquaresGrid(gridClass) {
+    const grid = document.getElementById('squaresGridArea');
+    grid.className = 'grid-area';
+    grid.innerHTML = '';
+
+    // 根据 gridClass 解析行列数（格式：grid-列x行）
+    let rows = 8, cols = 12;
+    const dimMatch = gridClass.match(/grid-(\d+)x(\d+)/);
+    if (dimMatch) {
+        cols = parseInt(dimMatch[1]);
+        rows = parseInt(dimMatch[2]);
+    } else if (gridClass === 'grid-8x8') {
+        rows = 8;
+        cols = 8;
+    } else if (gridClass === 'grid-10x10') {
+        rows = 10;
+        cols = 10;
+    } else if (gridClass === 'grid-5x10') {
+        rows = 5;
+        cols = 10;
+    } else if (gridClass === 'grid-8x7') {
+        rows = 7;
+        cols = 8;
+    } else if (gridClass === 'grid-12x8') {
+        rows = 8;
+        cols = 12;
+    }
+
+    // 设置网格样式
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+    grid.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+    grid.style.gap = '2px';
+    grid.dataset.rows = rows;
+    grid.dataset.cols = cols;
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            grid.appendChild(cell);
+        }
+    }
+}
+
+// 初始化正方形拖拽功能
+function initSquaresDragAndDrop() {
+    const squares = document.querySelectorAll('.draggable-square');
+    const cells = document.querySelectorAll('#squaresGridArea .grid-cell');
+
+    squares.forEach(square => {
+        square.setAttribute('draggable', 'true');
+        square.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('square-id', square.dataset.squareId);
+            square.classList.add('dragging');
+        });
+
+        square.addEventListener('dragend', () => {
+            square.classList.remove('dragging');
+        });
+    });
+
+    cells.forEach(cell => {
+        cell.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            cell.classList.add('droppable');
+        });
+
+        cell.addEventListener('dragleave', () => {
+            cell.classList.remove('droppable');
+        });
+
+        cell.addEventListener('drop', (e) => {
+            e.preventDefault();
+            cell.classList.remove('droppable');
+
+            // 隐藏提示框
+            hideSquaresMessage();
+
+            const squareId = e.dataTransfer.getData('square-id');
+            const fromCell = e.dataTransfer.getData('from-cell') === 'true';
+
+            if (!squareId) return;
+            
+            // 如果目标格子已有正方形，不能放置
+            if (cell.querySelector('.dropped-square')) {
+                return;
+            }
+
+            // 如果是从网格中拖动到另一个位置（重新排列）
+            if (fromCell) {
+                // 找到原来的位置并移除
+                const oldIdx = placedSquares.findIndex(s => s.squareId === squareId);
+                if (oldIdx !== -1) {
+                    // 从旧格子移除DOM元素
+                    const oldSquare = document.querySelector(`#squaresGridArea .dropped-square[data-square-id="${squareId}"]`);
+                    if (oldSquare) {
+                        oldSquare.remove();
+                    }
+                    // 从数组中移除旧位置
+                    placedSquares.splice(oldIdx, 1);
+                    originalPositions.splice(oldIdx, 1);
+                }
+            } else {
+                // 从左侧拖入的，检查是否已经放置了4个正方形
+                if (placedSquares.length >= 4) {
+                    showSquaresMessage('最多只能放置4个正方形！');
+                    return;
+                }
+
+                // 如果已经放置过这个正方形，不允许重复放置
+                if (placedSquares.some(s => s.squareId === squareId)) {
+                    showSquaresMessage('这个正方形已经放置过了！');
+                    return;
+                }
+            }
+
+            // 放置正方形
+            const droppedSquare = document.createElement('div');
+            droppedSquare.className = 'dropped-square';
+            droppedSquare.dataset.squareId = squareId;
+            droppedSquare.setAttribute('draggable', 'true');
+            
+            // 添加拖动事件 - 用于在网格内重新拖动
+            droppedSquare.addEventListener('dragstart', (e) => {
+                e.stopPropagation(); // 阻止冒泡
+                e.dataTransfer.setData('square-id', squareId);
+                e.dataTransfer.setData('from-cell', 'true'); // 标记是从网格中拖出的
+                droppedSquare.classList.add('dragging');
+            });
+            
+            droppedSquare.addEventListener('dragend', () => {
+                droppedSquare.classList.remove('dragging');
+            });
+            
+            cell.appendChild(droppedSquare);
+
+            // 记录位置
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            placedSquares.push({
+                row: row,
+                col: col,
+                squareId: squareId
+            });
+
+            // 如果是第一个放置的，记录为原点
+            if (placedSquares.length === 1) {
+                originalPositions = [{row: 0, col: 0, squareId: squareId}];
+            } else {
+                // 记录相对于第一个正方形的位置
+                const origin = placedSquares[0];
+                originalPositions.push({
+                    row: row - origin.row,
+                    col: col - origin.col,
+                    squareId: squareId
+                });
+            }
+
+            // 如果不是从网格中拖动的（是从左侧拖入的），隐藏原始正方形
+            if (!fromCell) {
+                const originalSquare = document.querySelector(`.draggable-square[data-square-id="${squareId}"]`);
+                if (originalSquare) {
+                    originalSquare.style.visibility = 'hidden';
+                }
+            }
+
+            // 重新计算所有相对位置（从网格中拖动后需要更新）
+            if (placedSquares.length > 0) {
+                const origin = placedSquares[0];
+                originalPositions = placedSquares.map(s => ({
+                    row: s.row - origin.row,
+                    col: s.col - origin.col,
+                    squareId: s.squareId
+                }));
+            }
+
+            // 自动检测是否已形成四连方
+            if (placedSquares.length === 4) {
+                checkTetromino();
+            }
+        });
+
+        // 点击已放置的正方形可以移除
+        cell.addEventListener('click', () => {
+            const dropped = cell.querySelector('.dropped-square');
+            if (dropped) {
+                // 隐藏提示框
+                hideSquaresMessage();
+
+                const squareId = dropped.dataset.squareId;
+                dropped.remove();
+
+                // 从记录中移除
+                const idx = placedSquares.findIndex(s => s.squareId === squareId);
+                if (idx !== -1) {
+                    placedSquares.splice(idx, 1);
+                    originalPositions.splice(idx, 1);
+                }
+
+                // 重新计算相对位置
+                if (placedSquares.length > 0) {
+                    const origin = placedSquares[0];
+                    originalPositions = placedSquares.map(s => ({
+                        row: s.row - origin.row,
+                        col: s.col - origin.col,
+                        squareId: s.squareId
+                    }));
+                } else {
+                    originalPositions = [];
+                }
+
+                // 恢复原始正方形显示
+                const originalSquare = document.querySelector(`.draggable-square[data-square-id="${squareId}"]`);
+                if (originalSquare) {
+                    originalSquare.style.visibility = 'visible';
+                }
+            }
+        });
+    });
+}
+
+// 检查是否为四连方（4个正方形通过边相连）
+// silentMode: true = 不显示提示，只返回结果
+function checkTetromino(silentMode = false) {
+    if (placedSquares.length !== 4) {
+        if (!silentMode) {
+            showSquaresMessage(`目前只有 ${placedSquares.length} 个正方形，需要4个才能组成四连方！`);
+        }
+        return false;
+    }
+
+    // 检查连通性：每个方块必须与至少一个其他方块共享边
+    const visited = new Set();
+    const queue = [placedSquares[0]];
+    visited.add(`${placedSquares[0].row},${placedSquares[0].col}`);
+
+    while (queue.length > 0) {
+        const current = queue.shift();
+        const neighbors = [
+            {row: current.row-1, col: current.col},
+            {row: current.row+1, col: current.col},
+            {row: current.row, col: current.col-1},
+            {row: current.row, col: current.col+1}
+        ];
+
+        for (const neighbor of neighbors) {
+            const key = `${neighbor.row},${neighbor.col}`;
+            if (!visited.has(key) && placedSquares.some(s => s.row === neighbor.row && s.col === neighbor.col)) {
+                visited.add(key);
+                queue.push(neighbor);
+            }
+        }
+    }
+
+    if (visited.size !== 4) {
+        if (!silentMode) {
+            showSquaresMessage('❌ 这不是四连方！所有正方形必须通过边与边连接在一起。');
+        }
+        return false;
+    }
+
+    if (!silentMode) {
+        showSquaresMessage('✅ 恭喜！你拼出了一个四连方！');
+    }
+    return true;
+}
+
+// 旋转整个四连方（绕中心点旋转）
+// direction: 1 = 顺时针90度, -1 = 逆时针90度
+// 核心思路：旋转后，保持形状的包围盒左上角不变，确保形状不漂移
+function rotateSquares(direction) {
+    // 先隐藏之前的提示
+    hideSquaresMessage();
+
+    if (placedSquares.length === 0) {
+        showSquaresMessage('请先放置正方形！');
+        return;
+    }
+
+    // 检查是否为有效的四连方
+    if (!checkTetromino(true)) {
+        showSquaresMessage('❌ 无法旋转！请先拼成一个四连方（4个正方形必须通过边相连）。');
+        return;
+    }
+
+    const grid = document.getElementById('squaresGridArea');
+    const gridRows = parseInt(grid.dataset.rows) || 10;
+    const gridCols = parseInt(grid.dataset.cols) || 10;
+
+    // 记录旋转前的包围盒（用于锚定形状位置）
+    const oldMinRow = Math.min(...placedSquares.map(s => s.row));
+    const oldMinCol = Math.min(...placedSquares.map(s => s.col));
+    const oldMaxRow = Math.max(...placedSquares.map(s => s.row));
+    const oldMaxCol = Math.max(...placedSquares.map(s => s.col));
+
+    // 使用包围盒中心作为旋转中心（更稳定）
+    const centerRow = (oldMinRow + oldMaxRow) / 2.0;
+    const centerCol = (oldMinCol + oldMaxCol) / 2.0;
+
+    // 旋转公式（绕中心点）
+    // 顺时针90度: (relRow, relCol) -> (relCol, -relRow)
+    // 逆时针90度: (relRow, relCol) -> (-relCol, relRow)
+    const rotatedPositions = placedSquares.map(s => {
+        const relRow = s.row - centerRow;
+        const relCol = s.col - centerCol;
+        let newRelRow, newRelCol;
+        if (direction === 1) {
+            newRelRow = relCol;
+            newRelCol = -relRow;
+        } else {
+            newRelRow = -relCol;
+            newRelCol = relRow;
+        }
+        return {
+            row: centerRow + newRelRow,
+            col: centerCol + newRelCol,
+            squareId: s.squareId
+        };
+    });
+
+    // 计算旋转后的包围盒
+    const newRows = rotatedPositions.map(s => s.row);
+    const newCols = rotatedPositions.map(s => s.col);
+    const newMinRow = Math.min(...newRows);
+    const newMinCol = Math.min(...newCols);
+
+    // 计算平移量：让旋转后的包围盒左上角与旋转前重合
+    const rowOffset = oldMinRow - newMinRow;
+    const colOffset = oldMinCol - newMinCol;
+
+    // 应用平移并取整
+    const newAbsPositions = rotatedPositions.map(s => ({
+        row: Math.round(s.row + rowOffset),
+        col: Math.round(s.col + colOffset),
+        squareId: s.squareId
+    }));
+
+    // 检查是否在网格范围内
+    for (const pos of newAbsPositions) {
+        if (pos.row < 0 || pos.row >= gridRows || pos.col < 0 || pos.col >= gridCols) {
+            showSquaresMessage('旋转后超出网格范围！请调整位置后再试。');
+            return;
+        }
+    }
+
+    // 检查是否有重叠
+    for (let i = 0; i < newAbsPositions.length; i++) {
+        for (let j = i + 1; j < newAbsPositions.length; j++) {
+            if (newAbsPositions[i].row === newAbsPositions[j].row && newAbsPositions[i].col === newAbsPositions[j].col) {
+                showSquaresMessage('旋转后位置重叠！请调整位置后再试。');
+                return;
+            }
+        }
+    }
+
+    // 清除当前显示
+    clearSquaresDisplay();
+
+    // 更新 placedSquares
+    placedSquares = newAbsPositions;
+
+    // 显示新的位置
+    placedSquares.forEach(s => {
+        const cell = document.querySelector(`#squaresGridArea .grid-cell[data-row="${s.row}"][data-col="${s.col}"]`);
+        if (cell) {
+            const droppedSquare = createDraggableSquare(s.squareId);
+            cell.appendChild(droppedSquare);
+        }
+    });
+}
+
+// 翻转整个四连方（绕中心点水平翻转）
+// 核心思路：翻转后，保持形状的包围盒左上角不变，确保形状不漂移
+function flipSquares() {
+    // 先隐藏之前的提示
+    hideSquaresMessage();
+
+    if (placedSquares.length === 0) {
+        showSquaresMessage('请先放置正方形！');
+        return;
+    }
+
+    // 检查是否为有效的四连方
+    if (!checkTetromino(true)) {
+        showSquaresMessage('❌ 无法翻转！请先拼成一个四连方（4个正方形必须通过边相连）。');
+        return;
+    }
+
+    const grid = document.getElementById('squaresGridArea');
+    const gridRows = parseInt(grid.dataset.rows) || 10;
+    const gridCols = parseInt(grid.dataset.cols) || 10;
+
+    // 记录翻转前的包围盒（用于锚定形状位置）
+    const oldMinRow = Math.min(...placedSquares.map(s => s.row));
+    const oldMinCol = Math.min(...placedSquares.map(s => s.col));
+    const oldMaxRow = Math.max(...placedSquares.map(s => s.row));
+    const oldMaxCol = Math.max(...placedSquares.map(s => s.col));
+
+    // 使用包围盒中心作为翻转中心
+    const centerRow = (oldMinRow + oldMaxRow) / 2.0;
+    const centerCol = (oldMinCol + oldMaxCol) / 2.0;
+
+    // 水平翻转：相对于中心 (relRow, relCol) -> (relRow, -relCol)
+    const flippedPositions = placedSquares.map(s => {
+        const relRow = s.row - centerRow;
+        const relCol = s.col - centerCol;
+        return {
+            row: centerRow + relRow,
+            col: centerCol + (-relCol),
+            squareId: s.squareId
+        };
+    });
+
+    // 计算翻转后的包围盒
+    const newRows = flippedPositions.map(s => s.row);
+    const newCols = flippedPositions.map(s => s.col);
+    const newMinRow = Math.min(...newRows);
+    const newMinCol = Math.min(...newCols);
+
+    // 计算平移量：让翻转后的包围盒左上角与翻转前重合
+    const rowOffset = oldMinRow - newMinRow;
+    const colOffset = oldMinCol - newMinCol;
+
+    // 应用平移并取整
+    const newAbsPositions = flippedPositions.map(s => ({
+        row: Math.round(s.row + rowOffset),
+        col: Math.round(s.col + colOffset),
+        squareId: s.squareId
+    }));
+
+    // 检查是否在网格范围内
+    for (const pos of newAbsPositions) {
+        if (pos.row < 0 || pos.row >= gridRows || pos.col < 0 || pos.col >= gridCols) {
+            showSquaresMessage('翻转后超出网格范围！请调整位置后再试。');
+            return;
+        }
+    }
+
+    // 检查是否有重叠
+    for (let i = 0; i < newAbsPositions.length; i++) {
+        for (let j = i + 1; j < newAbsPositions.length; j++) {
+            if (newAbsPositions[i].row === newAbsPositions[j].row && newAbsPositions[i].col === newAbsPositions[j].col) {
+                showSquaresMessage('翻转后位置重叠！请调整位置后再试。');
+                return;
+            }
+        }
+    }
+
+    // 清除当前显示
+    clearSquaresDisplay();
+
+    // 更新 placedSquares
+    placedSquares = newAbsPositions;
+
+    // 显示新的位置
+    placedSquares.forEach(s => {
+        const cell = document.querySelector(`#squaresGridArea .grid-cell[data-row="${s.row}"][data-col="${s.col}"]`);
+        if (cell) {
+            const droppedSquare = createDraggableSquare(s.squareId);
+            cell.appendChild(droppedSquare);
+        }
+    });
+}
+
+// 翻转整个四连方（绕中心点垂直翻转/上下翻转）
+// 核心思路：翻转后，保持形状的包围盒左上角不变，确保形状不漂移
+function verticalFlipSquares() {
+    // 先隐藏之前的提示
+    hideSquaresMessage();
+
+    if (placedSquares.length === 0) {
+        showSquaresMessage('请先放置正方形！');
+        return;
+    }
+
+    // 检查是否为有效的四连方
+    if (!checkTetromino(true)) {
+        showSquaresMessage('❌ 无法翻转！请先拼成一个四连方（4个正方形必须通过边相连）。');
+        return;
+    }
+
+    const grid = document.getElementById('squaresGridArea');
+    const gridRows = parseInt(grid.dataset.rows) || 10;
+    const gridCols = parseInt(grid.dataset.cols) || 10;
+
+    // 记录翻转前的包围盒（用于锚定形状位置）
+    const oldMinRow = Math.min(...placedSquares.map(s => s.row));
+    const oldMinCol = Math.min(...placedSquares.map(s => s.col));
+    const oldMaxRow = Math.max(...placedSquares.map(s => s.row));
+    const oldMaxCol = Math.max(...placedSquares.map(s => s.col));
+
+    // 使用包围盒中心作为翻转中心
+    const centerRow = (oldMinRow + oldMaxRow) / 2.0;
+    const centerCol = (oldMinCol + oldMaxCol) / 2.0;
+
+    // 垂直翻转：相对于中心 (relRow, relCol) -> (-relRow, relCol)
+    const flippedPositions = placedSquares.map(s => {
+        const relRow = s.row - centerRow;
+        const relCol = s.col - centerCol;
+        return {
+            row: centerRow + (-relRow),
+            col: centerCol + relCol,
+            squareId: s.squareId
+        };
+    });
+
+    // 计算翻转后的包围盒
+    const newRows = flippedPositions.map(s => s.row);
+    const newCols = flippedPositions.map(s => s.col);
+    const newMinRow = Math.min(...newRows);
+    const newMinCol = Math.min(...newCols);
+
+    // 计算平移量：让翻转后的包围盒左上角与翻转前重合
+    const rowOffset = oldMinRow - newMinRow;
+    const colOffset = oldMinCol - newMinCol;
+
+    // 应用平移并取整
+    const newAbsPositions = flippedPositions.map(s => ({
+        row: Math.round(s.row + rowOffset),
+        col: Math.round(s.col + colOffset),
+        squareId: s.squareId
+    }));
+
+    // 检查是否在网格范围内
+    for (const pos of newAbsPositions) {
+        if (pos.row < 0 || pos.row >= gridRows || pos.col < 0 || pos.col >= gridCols) {
+            showSquaresMessage('翻转后超出网格范围！请调整位置后再试。');
+            return;
+        }
+    }
+
+    // 检查是否有重叠
+    for (let i = 0; i < newAbsPositions.length; i++) {
+        for (let j = i + 1; j < newAbsPositions.length; j++) {
+            if (newAbsPositions[i].row === newAbsPositions[j].row && newAbsPositions[i].col === newAbsPositions[j].col) {
+                showSquaresMessage('翻转后位置重叠！请调整位置后再试。');
+                return;
+            }
+        }
+    }
+
+    // 清除当前显示
+    clearSquaresDisplay();
+
+    // 更新 placedSquares
+    placedSquares = newAbsPositions;
+
+    // 显示新的位置
+    placedSquares.forEach(s => {
+        const cell = document.querySelector(`#squaresGridArea .grid-cell[data-row="${s.row}"][data-col="${s.col}"]`);
+        if (cell) {
+            const droppedSquare = createDraggableSquare(s.squareId);
+            cell.appendChild(droppedSquare);
+        }
+    });
+}
+
+// 只清除网格显示，不清除数据
+function clearSquaresDisplay() {
+    document.querySelectorAll('#squaresGridArea .dropped-square').forEach(el => el.remove());
+}
+
+// 辅助函数：创建可拖动的正方形元素
+function createDraggableSquare(squareId) {
+    const droppedSquare = document.createElement('div');
+    droppedSquare.className = 'dropped-square';
+    droppedSquare.dataset.squareId = squareId;
+    droppedSquare.setAttribute('draggable', 'true');
+    
+    // 添加拖动事件 - 用于在网格内重新拖动
+    droppedSquare.addEventListener('dragstart', (e) => {
+        e.stopPropagation(); // 阻止冒泡
+        e.dataTransfer.setData('square-id', squareId);
+        e.dataTransfer.setData('from-cell', 'true'); // 标记是从网格中拖出的
+        droppedSquare.classList.add('dragging');
+    });
+    
+    droppedSquare.addEventListener('dragend', () => {
+        droppedSquare.classList.remove('dragging');
+    });
+    
+    return droppedSquare;
+}
+
+// 在拼图区域中央显示提示
+function showSquaresMessage(text) {
+    const messageEl = document.getElementById('squaresMessage');
+    const textEl = document.getElementById('squaresMessageText');
+    textEl.textContent = text;
+    messageEl.classList.remove('hidden');
+}
+
+// 隐藏拼图区域提示
+// 隐藏提示框
+function hideTetrominoMessage() {
+    const messageEl = document.getElementById('tetrominoMessage');
+    messageEl.classList.add('hidden');
+}
+
+// 显示应用实践提示框（网格中央）
+function showTetrominoMessage(text) {
+    const messageEl = document.getElementById('tetrominoMessage');
+    const textEl = document.getElementById('tetrominoMessageText');
+    textEl.textContent = text;
+    messageEl.classList.remove('hidden');
+}
+
+function hideSquaresMessage() {
+    const messageEl = document.getElementById('squaresMessage');
+    messageEl.classList.add('hidden');
+}
+
+// 清空网格
+function clearSquaresGrid() {
+    const cells = document.querySelectorAll('#squaresGridArea .grid-cell');
+    cells.forEach(cell => {
+        const dropped = cell.querySelector('.dropped-square');
+        if (dropped) {
+            const squareId = dropped.dataset.squareId;
+            dropped.remove();
+
+            // 恢复原始正方形显示
+            const originalSquare = document.querySelector(`.draggable-square[data-square-id="${squareId}"]`);
+            if (originalSquare) {
+                originalSquare.style.visibility = 'visible';
+            }
+        }
+    });
+    placedSquares = [];
+    originalPositions = [];
+    hideSquaresMessage();
+}
+
+// ============================================================
+// 形状池构建
+// ============================================================
+function buildShapePool(shapes) {
+    const pool = document.getElementById('tetrominoPool');
+    pool.innerHTML = '';
+    shapes.forEach(type => {
+        const item = document.createElement('div');
+        item.className = 'tetromino-shape-item';
+        item.dataset.shape = type;
+        item.onclick = () => selectShape(type);
+
+        const preview = document.createElement('div');
+        preview.className = `tetromino-draggable shape-${type}`;
+        preview.setAttribute('draggable', 'true');
+        preview.dataset.shape = type;
+        preview.id = 'shape-' + type;
+        for (let i = 0; i < 4; i++) {
+            const b = document.createElement('div');
+            b.className = 'block';
+            preview.appendChild(b);
+        }
+        item.appendChild(preview);
+        pool.appendChild(item);
+    });
+    updateAllShapePreviews(shapes);
+    bindShapeDragEvents();
+    // 默认选中第一个
+    if (shapes.length > 0) selectShape(shapes[0]);
+}
+
+function selectShape(type) {
+    selectedShape = type;
+    document.querySelectorAll('.tetromino-shape-item').forEach(el => {
+        el.classList.toggle('selected', el.dataset.shape === type);
+    });
+}
+
+function rotateShapeCommon(dir) {
+    if (!selectedShape) { alert('请先点击选择一个四连方！'); return; }
+    rotateShape(selectedShape, dir);
+}
+
+function flipShapeCommon(dir) {
+    if (!selectedShape) { alert('请先点击选择一个四连方！'); return; }
+    flipShape(selectedShape, dir);
+}
+
+// ============================================================
+// 坐标变换
+// ============================================================
+function rotatePoint(r,c,cols,rows,deg) {
+    deg = ((deg%360)+360)%360;
+    if (deg===0)   return {r,c,cols,rows};
+    if (deg===90)  return {r:c,c:cols-1-r,cols:rows,rows:cols};
+    if (deg===180) return {r:rows-1-r,c:cols-1-c,cols,rows};
+    if (deg===270) return {r:rows-1-c,c:r,cols:rows,rows:cols};
+    return {r,c,cols,rows};
+}
+function flipPoint(r,c,cols,rows,dir) {
+    if (dir==='horizontal') return {r,c:cols-1-c,cols,rows};
+    if (dir==='vertical')   return {r:rows-1-r,c,cols,rows};
+    return {r,c,cols,rows};
+}
+function getTransformedCells(type) {
+    let cells = BASE_SHAPES[type].map(([r,c])=>({r,c}));
+    let cols = Math.max(...cells.map(c=>c.c))+1;
+    let rows = Math.max(...cells.map(c=>c.r))+1;
+    const flip = shapeFlip[type];
+    if (flip) {
+        cells = cells.map(({r,c})=>flipPoint(r,c,cols,rows,flip));
+        cols = Math.max(...cells.map(c=>c.c))+1;
+        rows = Math.max(...cells.map(c=>c.r))+1;
+    }
+    const rot = shapeRotation[type];
+    if (rot !== 0) {
+        cells = cells.map(({r,c})=>rotatePoint(r,c,cols,rows,rot));
+        cols = Math.max(...cells.map(c=>c.c))+1;
+        rows = Math.max(...cells.map(c=>c.r))+1;
+    }
+    const minR = Math.min(...cells.map(c=>c.r));
+    const minC = Math.min(...cells.map(c=>c.c));
+    return cells.map(({r,c})=>[r-minR,c-minC]);
+}
+function getTransformedBounds(type) {
+    const cells = getTransformedCells(type);
+    return { cells, rows:Math.max(...cells.map(c=>c[0]))+1, cols:Math.max(...cells.map(c=>c[1]))+1 };
+}
+function getCellsFromTransform(type,rotation,flip) {
+    let cells = BASE_SHAPES[type].map(([r,c])=>({r,c}));
+    let cols = Math.max(...cells.map(c=>c.c))+1;
+    let rows = Math.max(...cells.map(c=>c.r))+1;
+    if (flip) {
+        cells = cells.map(({r,c})=>flipPoint(r,c,cols,rows,flip));
+        cols = Math.max(...cells.map(c=>c.c))+1;
+        rows = Math.max(...cells.map(c=>c.r))+1;
+    }
+    if (rotation !== 0) {
+        cells = cells.map(({r,c})=>rotatePoint(r,c,cols,rows,rotation));
+    }
+    const minR = Math.min(...cells.map(c=>c.r));
+    const minC = Math.min(...cells.map(c=>c.c));
+    return cells.map(({r,c})=>[r-minR,c-minC]);
+}
+
+// ============================================================
+// 形状预览更新
+// ============================================================
+function updateAllShapePreviews(shapes) {
+    shapes.forEach(t => updateShapePreview(t));
+}
+function updateShapePreview(type) {
+    const el = document.getElementById('shape-'+type);
+    if (!el) return;
+    const {cells,rows,cols} = getTransformedBounds(type);
+    el.style.gridTemplateColumns = `repeat(${cols},16px)`;
+    el.style.gridTemplateRows    = `repeat(${rows},16px)`;
+    const blocks = el.querySelectorAll('.block');
+    blocks.forEach((b,i) => {
+        if (i < cells.length) {
+            b.style.gridRow    = cells[i][0]+1;
+            b.style.gridColumn = cells[i][1]+1;
+        }
+    });
+}
+function rotateShape(type,dir) {
+    shapeRotation[type] = (shapeRotation[type]+dir*90+360)%360;
+    updateShapePreview(type);
+}
+function flipShape(type,dir) {
+    shapeFlip[type] = shapeFlip[type]===dir ? null : dir;
+    updateShapePreview(type);
+}
+
+// ============================================================
+// 拖拽事件
+// ============================================================
+function bindShapeDragEvents() {
+    document.querySelectorAll('.tetromino-draggable').forEach(el => {
+        el.addEventListener('dragstart', function(e) {
+            const shape = this.dataset.shape;
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                shape, rotation:shapeRotation[shape], flip:shapeFlip[shape]
+            }));
+            e.dataTransfer.effectAllowed = 'copy';
+            this.classList.add('dragging');
+        });
+        el.addEventListener('dragend', function() { this.classList.remove('dragging'); });
+    });
+}
+
+// ============================================================
+// 网格构建
+// ============================================================
+let gridRows = 16, gridCols = 8;
+
+function buildGrid(gridClass) {
+    const m = gridClass.match(/grid-(\d+)x(\d+)/);
+    gridCols = m ? parseInt(m[1]) : 12;
+    gridRows = m ? parseInt(m[2]) : 8;
+
+    // 应用实践(grid-12x8)动态计算合适格子尺寸，防止超出容器
+    let cellSize, gapSize;
+    if (gridClass === 'grid-12x8') {
+        gapSize = 2;
+        // 根据 grid-wrap 可用宽度动态计算格子尺寸
+        const gridWrap = document.querySelector('.grid-wrap');
+        if (gridWrap) {
+            // padding: var(--space-4) = 16px 两侧共32px
+            const availW = gridWrap.clientWidth - 32;
+            const availH = gridWrap.clientHeight - 32 - 32; // 减去标题高度约32px
+            // 宽度: cols*cell + (cols-1)*gap <= availW => cell <= (availW - (cols-1)*gap) / cols
+            const maxCellW = Math.floor((availW - (gridCols - 1) * gapSize) / gridCols);
+            const maxCellH = Math.floor((availH - (gridRows - 1) * gapSize) / gridRows);
+            cellSize = Math.max(20, Math.min(38, maxCellW, maxCellH));
+        } else {
+            cellSize = 32;
+        }
+    } else {
+        cellSize = 40;
+        gapSize  = 8;
+    }
+
+    const grid = document.getElementById('gridArea');
+    // 更新 CSS 类以匹配正确的网格尺寸
+    grid.className = 'grid-area ' + gridClass;
+    // 通过 inline style 精确控制尺寸（确保与CSS类一致）
+    grid.style.gridTemplateColumns = `repeat(${gridCols}, ${cellSize}px)`;
+    grid.style.gridTemplateRows    = `repeat(${gridRows}, ${cellSize}px)`;
+    grid.style.gap = `${gapSize}px`;
+    grid.innerHTML = '';
+    for (let r=0; r<gridRows; r++) {
+        for (let c=0; c<gridCols; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            cell.style.width  = cellSize + 'px';
+            cell.style.height = cellSize + 'px';
+            cell.dataset.row = r; cell.dataset.col = c;
+            grid.appendChild(cell);
+        }
+    }
+    bindGridEvents();
+}
+
+function bindGridEvents() {
+    // 全局dragend事件，处理拖拽到网格外取消
+    document.removeEventListener('dragend', window.__globalDragEndHandler);
+    window.__globalDragEndHandler = function(e) {
+        if (window.__draggedPlacementId && !window.__successfulDrop) {
+            removePlacement(window.__draggedPlacementId);
+        }
+        window.__draggedPlacementId = null;
+        window.__successfulDrop = false;
+    };
+    document.addEventListener('dragend', window.__globalDragEndHandler);
+    
+    document.querySelectorAll('.grid-cell').forEach(cell => {
+        cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+        cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+        
+        cell.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            let info;
+            try { info = JSON.parse(e.dataTransfer.getData('text/plain')); } catch { return; }
+            if (!info || !info.shape) return;
+            
+            // 标记成功放置
+            window.__successfulDrop = true;
+            
+            // 检查是否是移动已放置的四连方
+            if (info.placementId) {
+                // 移动操作：先移除原来的位置
+                removePlacement(info.placementId);
+            }
+            
+            const baseR = parseInt(this.dataset.row);
+            const baseC = parseInt(this.dataset.col);
+            
+            // 计算单元格
+            let cells;
+            if (info.cells) {
+                // 移动操作：使用传递的相对位置
+                cells = info.cells;
+            } else {
+                // 新放置操作：计算形状单元格
+                cells = getCellsFromTransform(info.shape, info.rotation, info.flip);
+            }
+            
+            // 练习模式：检查是否所有单元格都在目标区域内
+            if (window.__practiceTarget) {
+                const target = window.__practiceTarget;
+                const baseR = parseInt(this.dataset.row);
+                const baseC = parseInt(this.dataset.col);
+                const allInTarget = cells.every(([r,c]) => {
+                    const rr = baseR + r, cc = baseC + c;
+                    return target.cells.some(tc => tc.row === rr && tc.col === cc);
+                });
+                if (!allInTarget) {
+                    showTetrominoMessage('请将四连方放置在荧光区域内！');
+                    setTimeout(hideTetrominoMessage, 3000);
+                    window.__successfulDrop = false;
+                    return;
+                }
+            }
+            
+            // 边界检查
+            for (const [r,c] of cells) {
+                const rr=baseR+r, cc=baseC+c;
+                if (rr<0||rr>=gridRows||cc<0||cc>=gridCols) { 
+                    showTetrominoMessage('形状超出网格边界！请调整方向或换一个位置。');
+                    setTimeout(hideTetrominoMessage, 3000);
+                    window.__successfulDrop = false;
+                    return; 
+                }
+                const t = document.querySelector(`.grid-cell[data-row="${rr}"][data-col="${cc}"]`);
+                // 预填充格（pre-filled-cell）已有 .sq，不视为占用
+                if (!t||(t.hasChildNodes() && !t.classList.contains('pre-filled-cell'))) { 
+                    showTetrominoMessage('该位置已有方块，请换一个位置。');
+                    setTimeout(hideTetrominoMessage, 3000);
+                    window.__successfulDrop = false;
+                    return; 
+                }
+            }
+            
+            // 放置四连方
+            const color = SHAPE_COLORS[info.shape];
+            const placementId = info.placementId || `p-${placementCounter++}`;
+            const placedCells = [];
+            
+            // 计算相对位置（以第一个单元格为原点）
+            const relativeCells = cells.map(([r, c]) => [r - cells[0][0], c - cells[0][1]]);
+            
+            cells.forEach(([r,c]) => {
+                const rr=baseR+r, cc=baseC+c;
+                const t = document.querySelector(`.grid-cell[data-row="${rr}"][data-col="${cc}"]`);
+                if (t&&!t.hasChildNodes()) {
+                    const sq = document.createElement('div');
+                    sq.className = 'sq'; sq.style.background = color;
+                    sq.dataset.placementId = placementId;
+                    sq.dataset.cells = JSON.stringify(relativeCells);  // 存储相对位置
+                    sq.setAttribute('draggable','true'); sq.dataset.shape = info.shape;
+                    t.appendChild(sq); t.classList.add('filled');
+                    
+                    // 绑定dragstart事件（支持移动）
+                    sq.addEventListener('dragstart', function(e2) {
+                        e2.dataTransfer.setData('text/plain', JSON.stringify({
+                            shape: info.shape,
+                            placementId: placementId,
+                            cells: JSON.parse(this.dataset.cells)  // 传递相对位置
+                        }));
+                        e2.dataTransfer.effectAllowed = 'move';
+                        window.__draggedPlacementId = placementId;
+                    });
+                    
+                    // 双击移除
+                    sq.ondblclick = (e) => { e.stopPropagation(); removePlacement(placementId); };
+                    
+                    placedCells.push({row: rr, col: cc});
+                }
+            });
+            
+            placements[placementId] = { cells: placedCells, shape: info.shape };
+            
+            // 练习模式验证
+            if (window.__practiceTarget) {
+                validatePracticeFill();
+            }
+        });
+    });
+}
+
+function clearGrid() {
+    document.querySelectorAll('.grid-cell.filled').forEach(cell => {
+        cell.innerHTML = ''; cell.classList.remove('filled');
+    });
+    placements = {};
+    placementCounter = 0;
+}
+
+function removePlacement(placementId) {
+    const p = placements[placementId];
+    if (!p) return;
+    p.cells.forEach(({row, col}) => {
+        const cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
+        if (cell) { cell.innerHTML = ''; cell.classList.remove('filled'); }
+    });
+    delete placements[placementId];
+}
+
+function checkResult() {
+    hideTetrominoMessage();
+    const filled = document.querySelectorAll('.grid-cell.filled');
+    if (filled.length===0) { showTetrominoMessage('请先放置四连方！'); setTimeout(hideTetrominoMessage, 3000); return; }
+    let minR=Infinity,maxR=-1,minC=Infinity,maxC=-1;
+    filled.forEach(cell => {
+        const r=+cell.dataset.row, c=+cell.dataset.col;
+        if (r<minR) minR=r; if (r>maxR) maxR=r;
+        if (c<minC) minC=c; if (c>maxC) maxC=c;
+    });
+    const w=maxC-minC+1, h=maxR-minR+1;
+    if (filled.length !== w*h) {
+        showTetrominoMessage(`当前放置了${filled.length}个方块，未形成完整的${w}×${h}长方形（需${w*h}个方块）。`);
+        setTimeout(hideTetrominoMessage, 3000);
+    } else {
+        showTetrominoMessage(`✅ 成功！你用${filled.length/4}个四连方拼出了一个${w}×${h}的长方形！`);
+        setTimeout(hideTetrominoMessage, 3000);
+    }
+}
+
+// ============================================================
+// 巧手拼图模式交互
+// ============================================================
+let puzzleSelectedShape = null;   // 当前选中的四连方类型
+let puzzleUsedShapes = {};        // 已使用的形状记录 { shapeType: true }
+let puzzleGridState = [];        // 网格状态：5列×4行
+
+// 初始化巧手拼图
+function initPuzzleMode() {
+    puzzleSelectedShape = null;
+    puzzleUsedShapes = {};
+    puzzleGridState = Array.from({ length: 4 }, () => Array(5).fill(null));
+
+    // 构建4×5网格（放大版）
+    buildPuzzleGrid();
+}
+
+// 构建工具栏四连方素材按钮（横排）
+function buildPuzzleShapes() {
+    const grid = document.getElementById('puzzleShapesGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const shapes = ['I', 'L', 'T', 'Z', 'O'];
+
+    shapes.forEach((type) => {
+        const btn = document.createElement('div');
+        btn.className = 'puzzle-shape-btn-h';
+        btn.dataset.shape = type;
+        if (puzzleUsedShapes[type]) btn.classList.add('used');
+
+        // 形状显示区域
+        const display = document.createElement('div');
+        display.className = `shape-display shape-${type}`;
+        const cells = getPuzzleShapeCells(type);
+        const maxCol = Math.max(...cells.map(c => c[1]));
+        const maxRow = Math.max(...cells.map(c => c[0]));
+        display.style.gridTemplateColumns = `repeat(${maxCol + 1}, 12px)`;
+        display.style.gridTemplateRows = `repeat(${maxRow + 1}, 12px)`;
+
+        cells.forEach(([r, c]) => {
+            const block = document.createElement('div');
+            block.className = 'shape-block filled';
+            block.style.gridRow = (r + 1).toString();
+            block.style.gridColumn = (c + 1).toString();
+            display.appendChild(block);
+        });
+
+        btn.appendChild(display);
+
+        // 点击选中（未使用的才可以选）
+        btn.onclick = () => {
+            if (puzzleUsedShapes[type]) return;
+            selectPuzzleShape(type);
+        };
+
+        grid.appendChild(btn);
+    });
+}
+
+// 选中某个四连方素材
+function selectPuzzleShape(type) {
+    puzzleSelectedShape = type;
+    document.querySelectorAll('.puzzle-shape-btn-h').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.shape === type && !puzzleUsedShapes[type]);
+    });
+}
+
+// 获取四连方的基础单元格（未变换）
+function getPuzzleShapeCells(type) {
+    const base = BASE_SHAPES[type];
+    if (!base) return [];
+    // 规范化：移到左上角
+    const minR = Math.min(...base.map(c => c[0]));
+    const minC = Math.min(...base.map(c => c[1]));
+    return base.map(([r, c]) => [r - minR, c - minC]);
+}
+
+// 构建4×5网格（放大版，仅作展示用）
+function buildPuzzleGrid() {
+    const grid = document.getElementById('puzzleGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 5; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'puzzle-cell';
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            grid.appendChild(cell);
+        }
+    }
+}
+
+// 在指定位置放置选中的四连方（使用变换后的形状）
+function placePuzzleShape(type, startRow, startCol) {
+    if (puzzleUsedShapes[type]) return; // 已使用过
+
+    // 获取变换后的单元格（应用旋转和翻转）
+    let cells = getPuzzleShapeCells(type);
+    const rotation = puzzleShapeRotation[type];
+    const flipH = puzzleShapeFlip[type];
+    const flipV = puzzleFlipVertical[type];
+
+    // 应用左右翻转
+    if (flipH) {
+        const maxC = Math.max(...cells.map(c => c[1]));
+        cells = cells.map(([r, c]) => [r, maxC - c]);
+    }
+
+    // 应用上下翻转
+    if (flipV) {
+        const maxR = Math.max(...cells.map(c => c[0]));
+        cells = cells.map(([r, c]) => [maxR - r, c]);
+    }
+
+    // 应用旋转
+    if (rotation === 90) {
+        const maxC = Math.max(...cells.map(c => c[1]));
+        cells = cells.map(([r, c]) => [c, maxC - r]);
+    } else if (rotation === 180) {
+        const maxR = Math.max(...cells.map(c => c[0]));
+        const maxC = Math.max(...cells.map(c => c[1]));
+        cells = cells.map(([r, c]) => [maxR - r, maxC - c]);
+    } else if (rotation === 270) {
+        const maxR = Math.max(...cells.map(c => c[0]));
+        cells = cells.map(([r, c]) => [maxR - c, r]);
+    }
+
+    // 规范化到左上角
+    const minR = Math.min(...cells.map(c => c[0]));
+    const minC = Math.min(...cells.map(c => c[1]));
+    cells = cells.map(([r, c]) => [r - minR, c - minC]);
+
+    const colorClass = `puzzle-shape-${type}`;
+
+    // 检查是否能放下
+    const targetCells = [];
+    for (const [dr, dc] of cells) {
+        const rr = startRow + dr;
+        const cc = startCol + dc;
+        if (rr < 0 || rr >= 4 || cc < 0 || cc >= 5) {
+            showTetrominoMessage('位置超出网格！请换一个位置。');
+            setTimeout(hideTetrominoMessage, 2000);
+            return;
+        }
+        if (puzzleGridState[rr][cc]) {
+            showTetrominoMessage('该位置已有方块，请换一个位置。');
+            setTimeout(hideTetrominoMessage, 2000);
+            return;
+        }
+        targetCells.push({ row: rr, col: cc });
+    }
+
+    // 放置
+    targetCells.forEach(({ row, col }) => {
+        puzzleGridState[row][col] = type;
+        const cell = document.querySelector(`#puzzleGrid .puzzle-cell[data-row="${row}"][data-col="${col}"]`);
+        if (cell) {
+            cell.classList.add('filled');
+            const sq = document.createElement('div');
+            sq.className = 'sq';
+            sq.style.background = getPuzzleShapeColor(type);
+            sq.style.borderRadius = '4px';
+            sq.style.width = '100%';
+            sq.style.height = '100%';
+            sq.style.boxShadow = '1px 1px 3px rgba(0,0,0,0.15)';
+            // 双击移除
+            sq.ondblclick = () => removePuzzleShape(row, col, type);
+            cell.appendChild(sq);
+        }
+    });
+
+    // 标记为已使用
+    puzzleUsedShapes[type] = true;
+    selectPuzzleShape(null);
+    buildPuzzleShapes(); // 刷新左栏显示
+    updatePuzzleControls();
+
+    // 检查是否完成
+    checkPuzzleComplete();
+}
+
+// 获取形状颜色
+function getPuzzleShapeColor(type) {
+    const colors = {
+        I: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
+        L: 'linear-gradient(135deg, #fb923c, #f97316)',
+        T: 'linear-gradient(135deg, #c084fc, #a855f7)',
+        S: 'linear-gradient(135deg, #f87171, #ef4444)',
+        O: 'linear-gradient(135deg, #f472b6, #ec4899)'
+    };
+    return colors[type] || '#3b82f6';
+}
+
+// 移除某个形状（双击方块时）
+function removePuzzleShape(row, col, type) {
+    // 找到该形状所有格子并移除
+    const cells = getPuzzleShapeCells(type);
+    const targetCells = [];
+    // 找到锚点
+    for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 5; c++) {
+            if (puzzleGridState[r][c] === type) {
+                // 检查是否从这个位置开始能匹配
+                let match = true;
+                for (const [dr, dc] of cells) {
+                    const rr = r + dr;
+                    const cc = c + dc;
+                    if (rr < 0 || rr >= 4 || cc < 0 || cc >= 5 || puzzleGridState[rr][cc] !== type) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    cells.forEach(([dr, dc]) => {
+                        const rr = r + dr;
+                        const cc = c + dc;
+                        targetCells.push({ row: rr, col: cc });
+                    });
+                    break;
+                }
+            }
+        }
+        if (targetCells.length > 0) break;
+    }
+
+    targetCells.forEach(({ row, col }) => {
+        puzzleGridState[row][col] = null;
+        const cell = document.querySelector(`#puzzleGrid .puzzle-cell[data-row="${row}"][data-col="${col}"]`);
+        if (cell) {
+            cell.classList.remove('filled');
+            cell.innerHTML = '';
+        }
+    });
+
+    delete puzzleUsedShapes[type];
+    buildPuzzleShapes(); // 刷新左栏
+    updatePuzzleControls();
+}
+
+// 旋转选中的形状（预览效果，实际放置时使用旋转后的形状）
+let puzzleShapeRotation = { I: 0, L: 0, T: 0, S: 0, O: 0 };
+function rotatePuzzleShape() {
+    if (!puzzleSelectedShape) {
+        showTetrominoMessage('请先选择一个四连方素材！');
+        setTimeout(hideTetrominoMessage, 2000);
+        return;
+    }
+    puzzleShapeRotation[puzzleSelectedShape] = (puzzleShapeRotation[puzzleSelectedShape] + 90) % 360;
+    // 刷新左栏预览
+    refreshPuzzleShapePreview(puzzleSelectedShape);
+    showTetrominoMessage(`已顺时针旋转 ${puzzleShapeRotation[puzzleSelectedShape]}°`);
+    setTimeout(hideTetrominoMessage, 1500);
+}
+
+// 左右翻转选中的形状
+let puzzleShapeFlip = { I: false, L: false, T: false, S: false, O: false };
+let puzzleFlipVertical = { I: false, L: false, T: false, S: false, O: false };
+function flipPuzzleShapeH() {
+    if (!puzzleSelectedShape) {
+        showTetrominoMessage('请先选择一个四连方素材！');
+        setTimeout(hideTetrominoMessage, 2000);
+        return;
+    }
+    puzzleShapeFlip[puzzleSelectedShape] = !puzzleShapeFlip[puzzleSelectedShape];
+    refreshPuzzleShapePreview(puzzleSelectedShape);
+    showTetrominoMessage(puzzleShapeFlip[puzzleSelectedShape] ? '已左右翻转' : '已取消左右翻转');
+    setTimeout(hideTetrominoMessage, 1500);
+}
+
+// 上下翻转选中的形状
+function flipPuzzleShapeV() {
+    if (!puzzleSelectedShape) {
+        showTetrominoMessage('请先选择一个四连方素材！');
+        setTimeout(hideTetrominoMessage, 2000);
+        return;
+    }
+    puzzleFlipVertical[puzzleSelectedShape] = !puzzleFlipVertical[puzzleSelectedShape];
+    refreshPuzzleShapePreview(puzzleSelectedShape);
+    showTetrominoMessage(puzzleFlipVertical[puzzleSelectedShape] ? '已上下翻转' : '已取消上下翻转');
+    setTimeout(hideTetrominoMessage, 1500);
+}
+
+// 刷新某个形状的预览显示
+function refreshPuzzleShapePreview(type) {
+    const btn = document.querySelector(`.puzzle-shape-btn-h[data-shape="${type}"]`);
+    if (!btn) return;
+    const display = btn.querySelector('.shape-display');
+    if (!display) return;
+
+    // 获取变换后的单元格
+    let cells = getPuzzleShapeCells(type);
+    const rotation = puzzleShapeRotation[type];
+    const flipH = puzzleShapeFlip[type];
+    const flipV = puzzleFlipVertical[type];
+
+    // 应用左右翻转
+    if (flipH) {
+        const maxC = Math.max(...cells.map(c => c[1]));
+        cells = cells.map(([r, c]) => [r, maxC - c]);
+    }
+
+    // 应用上下翻转
+    if (flipV) {
+        const maxR = Math.max(...cells.map(c => c[0]));
+        cells = cells.map(([r, c]) => [maxR - r, c]);
+    }
+
+    // 应用旋转
+    if (rotation === 90) {
+        const maxC = Math.max(...cells.map(c => c[1]));
+        cells = cells.map(([r, c]) => [c, maxC - r]);
+    } else if (rotation === 180) {
+        const maxR = Math.max(...cells.map(c => c[0]));
+        const maxC = Math.max(...cells.map(c => c[1]));
+        cells = cells.map(([r, c]) => [maxR - r, maxC - c]);
+    } else if (rotation === 270) {
+        const maxR = Math.max(...cells.map(c => c[0]));
+        cells = cells.map(([r, c]) => [maxR - c, r]);
+    }
+
+    // 规范化
+    const minR = Math.min(...cells.map(c => c[0]));
+    const minC = Math.min(...cells.map(c => c[1]));
+    cells = cells.map(([r, c]) => [r - minR, c - minC]);
+
+    // 在4×4 grid中居中显示
+    const maxRow = Math.max(...cells.map(c => c[0]));
+    const maxCol = Math.max(...cells.map(c => c[1]));
+    const totalRows = maxRow + 1;
+    const totalCols = maxCol + 1;
+    const offsetRow = Math.max(0, Math.floor((4 - totalRows) / 2));
+    const offsetCol = Math.max(0, Math.floor((4 - totalCols) / 2));
+    display.innerHTML = '';
+    cells.forEach(([r, c]) => {
+        const block = document.createElement('div');
+        block.className = 'shape-block filled';
+        block.style.gridRow = (r + offsetRow + 1).toString();
+        block.style.gridColumn = (c + offsetCol + 1).toString();
+        display.appendChild(block);
+    });
+}
+
+// 更新控制按钮状态
+function updatePuzzleControls() {
+    const hasUnused = Object.keys(puzzleUsedShapes).length < 5;
+    // 可以在这里添加按钮禁用/启用逻辑
+}
+
+// 清空网格
+function clearPuzzleGrid() {
+    puzzleGridState = Array.from({ length: 4 }, () => Array(5).fill(null));
+    puzzleUsedShapes = {};
+    puzzleSelectedShape = null;
+    puzzleShapeRotation = { I: 0, L: 0, T: 0, S: 0, O: 0 };
+    puzzleShapeFlip = { I: false, L: false, T: false, S: false, O: false };
+    puzzleFlipVertical = { I: false, L: false, T: false, S: false, O: false };
+
+    // 清空网格显示
+    document.querySelectorAll('#puzzleGrid .puzzle-cell').forEach(cell => {
+        cell.classList.remove('filled');
+        cell.innerHTML = '';
+    });
+
+    // 刷新左栏
+    buildPuzzleShapes();
+    updatePuzzleControls();
+    showTetrominoMessage('已清空网格！');
+    setTimeout(hideTetrominoMessage, 1500);
+}
+
+// 检查是否完成拼图（5个形状都放置了，且填满4×5网格）
+function checkPuzzleComplete() {
+    const usedCount = Object.keys(puzzleUsedShapes).length;
+    if (usedCount === 5) {
+        // 检查是否所有格子都被填满
+        const allFilled = puzzleGridState.every(row => row.every(cell => cell !== null));
+        if (allFilled) {
+            showTetrominoMessage('🎉 恭喜！你成功用5个四连方拼满了4×5的长方形！');
+        }
+    }
+}
+
+// ============================================================
+// 首页跳转
+// ============================================================
+function goHome() {
+    location.href = 'homepage_design.html';
+}
+
+// ============================================================
+// 使用帮助
+// ============================================================
+function showHelp() {
+    document.getElementById('helpModal').classList.add('show');
+}
+
+function closeHelp() {
+    document.getElementById('helpModal').classList.remove('show');
+}
+
+// ============================================================
+// 练习模式：随机目标生成与验证
+// ============================================================
+window.__practiceTarget = null;
+
+function generateRandomRectangle(gridRows, gridCols, maxSize) {
+    const cap = maxSize || 6;
+    const maxW = Math.min(gridCols, cap);
+    const maxH = Math.min(gridRows, cap);
+    const sizes = [];
+    // 只生成长方形（宽≠高），不生成正方形
+    for (let h = 2; h <= maxH; h++) {
+        for (let w = 2; w <= maxW; w++) {
+            // 格子数是4的倍数，且宽和高不相等（排除正方形）
+            if ((w * h) % 4 === 0 && w !== h) {
+                sizes.push({width: w, height: h});
+            }
+        }
+    }
+    if (sizes.length === 0) return null;
+    const dim = sizes[Math.floor(Math.random() * sizes.length)];
+    const maxRow = gridRows - dim.height;
+    const maxCol = gridCols - dim.width;
+    const sr = Math.floor(Math.random() * (maxRow + 1));
+    const sc = Math.floor(Math.random() * (maxCol + 1));
+    const cells = [];
+    for (let r = 0; r < dim.height; r++) {
+        for (let c = 0; c < dim.width; c++) {
+            cells.push({row: sr + r, col: sc + c});
+        }
+    }
+    return { type:'rectangle', startRow:sr, startCol:sc, width:dim.width, height:dim.height, cells };
+}
+
+function generateRandomSquare(gridRows, gridCols, maxSize) {
+    const cap = maxSize || 6;
+    const upper = Math.min(gridRows, gridCols, cap);
+    const sizes = [];
+    for (let s = 2; s <= upper; s += 2) {
+        if ((s * s) % 4 === 0) sizes.push(s);
+    }
+    const size = sizes[Math.floor(Math.random() * sizes.length)];
+    const maxRow = gridRows - size;
+    const maxCol = gridCols - size;
+    const sr = Math.floor(Math.random() * (maxRow + 1));
+    const sc = Math.floor(Math.random() * (maxCol + 1));
+    const cells = [];
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            cells.push({row: sr + r, col: sc + c});
+        }
+    }
+    return { type:'square', startRow:sr, startCol:sc, size, cells };
+}
+
+function generateRandomTetrominosInTarget(targetCells, count) {
+    const types = ['I','L','T','Z','O'];
+    const placed = [];
+    let attempts = 0;
+    while (placed.length < count && attempts < 500) {
+        attempts++;
+        const type = types[Math.floor(Math.random() * types.length)];
+        const rotation = [0,90,180,270][Math.floor(Math.random()*4)];
+        const flips = [null,'horizontal','vertical'];
+        const flip = flips[Math.floor(Math.random()*flips.length)];
+        const cellsRel = getCellsFromTransform(type, rotation, flip);
+        const anchorIdx = Math.floor(Math.random() * targetCells.length);
+        const anchor = targetCells[anchorIdx];
+        const absCells = cellsRel.map(([r,c]) => ({row:anchor.row + r, col:anchor.col + c}));
+        const allInTarget = absCells.every(ac =>
+            targetCells.some(tc => tc.row===ac.row && tc.col===ac.col)
+        );
+        const noOverlap = !absCells.some(ac =>
+            placed.some(p => p.cells.some(pc => pc.row===ac.row && pc.col===ac.col))
+        );
+        if (allInTarget && noOverlap) {
+            placed.push({ type, cells: absCells });
+        }
+    }
+    return placed;
+}
+
+// 检查空白区域是否能被至少一个四连方填充（核心形状检测）
+// 返回：true = 能放下至少一个四连方，false = 放不下任何四连方
+function checkBlankAreaCanFitTetromino(blankCells) {
+    if (blankCells.length < 4) return false;
+    
+    // 定义四连方基本形状的单元格偏移（以重心为参考）
+    const SHAPE_TYPES = ['I','L','T','Z','O'];
+    
+    // 基础形状单元格的4连通邻居偏移
+    const neighbors4 = [[0,1],[0,-1],[1,0],[-1,0]];
+    
+    // 获取形状的边界框尺寸
+    function getShapeBounds(cells) {
+        const rows = cells.map(c => c[0]);
+        const cols = cells.map(c => c[1]);
+        const minR = Math.min(...rows), maxR = Math.max(...rows);
+        const minC = Math.min(...cols), maxC = Math.max(...cols);
+        return { width: maxC - minC + 1, height: maxR - minR + 1, minR, maxR, minC, maxC };
+    }
+    
+    // 翻转形状
+    function flipShape(cells, cols, rows, flip) {
+        return cells.map(([r, c]) => {
+            if (flip === 'horizontal') return [r, cols - 1 - c];
+            if (flip === 'vertical') return [rows - 1 - r, c];
+            return [r, c];
+        });
+    }
+    
+    // 旋转形状
+    function rotateShape(cells, cols, rows, angle) {
+        return cells.map(([r, c]) => {
+            if (angle === 90) return [c, rows - 1 - r];
+            if (angle === 180) return [rows - 1 - r, cols - 1 - c];
+            if (angle === 270) return [cols - 1 - c, r];
+            return [r, c];
+        });
+    }
+    
+    // 规范化形状（移动到左上角）
+    function normalizeShape(cells) {
+        const minR = Math.min(...cells.map(c => c[0]));
+        const minC = Math.min(...cells.map(c => c[1]));
+        return cells.map(([r, c]) => [r - minR, c - minC]);
+    }
+    
+    // 创建Set用于快速查找
+    const blankSet = new Set(blankCells.map(c => c.row + ',' + c.col));
+    
+    // 检查某形状能否放在空白区域的某个位置
+    function canPlaceShape(shapeCells, anchorRow, anchorCol) {
+        for (const [dr, dc] of shapeCells) {
+            const r = anchorRow + dr;
+            const c = anchorCol + dc;
+            if (!blankSet.has(r + ',' + c)) return false;
+        }
+        return true;
+    }
+    
+    // 尝试放置任意形状到空白区域的每个可能位置
+    for (const type of SHAPE_TYPES) {
+        let cells = BASE_SHAPES[type].slice();
+        const bounds = getShapeBounds(cells);
+        
+        // 生成所有变换变体
+        const variants = [];
+        
+        // 原始方向
+        let normalized = normalizeShape(cells);
+        variants.push(normalized);
+        
+        // 水平和垂直翻转
+        const flippedH = flipShape(cells, bounds.width, bounds.height, 'horizontal');
+        variants.push(normalizeShape(flippedH));
+        const flippedV = flipShape(cells, bounds.width, bounds.height, 'vertical');
+        variants.push(normalizeShape(flippedV));
+        
+        // 旋转90度及其翻转
+        const rotated90 = rotateShape(cells, bounds.width, bounds.height, 90);
+        let rh = getShapeBounds(rotated90);
+        variants.push(normalizeShape(rotated90));
+        variants.push(normalizeShape(flipShape(rotated90, rh.width, rh.height, 'horizontal')));
+        variants.push(normalizeShape(flipShape(rotated90, rh.width, rh.height, 'vertical')));
+        
+        // 旋转180度
+        const rotated180 = rotateShape(cells, bounds.width, bounds.height, 180);
+        variants.push(normalizeShape(rotated180));
+        
+        // 旋转270度及其翻转
+        const rotated270 = rotateShape(cells, bounds.width, bounds.height, 270);
+        const r270h = getShapeBounds(rotated270);
+        variants.push(normalizeShape(rotated270));
+        variants.push(normalizeShape(flipShape(rotated270, r270h.width, r270h.height, 'horizontal')));
+        variants.push(normalizeShape(flipShape(rotated270, r270h.width, r270h.height, 'vertical')));
+        
+        // 去重
+        const uniqueVariants = [];
+        const seen = new Set();
+        for (const v of variants) {
+            const key = v.map(([r,c]) => r+','+c).sort().join('|');
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueVariants.push(v);
+            }
+        }
+        
+        // 尝试每个变体、每个位置
+        for (const variant of uniqueVariants) {
+            const varBounds = getShapeBounds(variant);
+            
+            // 遍历空白区域的每个格子作为可能的放置起点
+            for (const blankCell of blankCells) {
+                // 尝试形状的每个单元格作为锚点
+                for (const [dr, dc] of variant) {
+                    const anchorR = blankCell.row - dr;
+                    const anchorC = blankCell.col - dc;
+                    
+                    // 检查形状是否完全在空白区域内
+                    if (canPlaceShape(variant, anchorR, anchorC)) {
+                        return true; // 找到了能放置的位置
+                    }
+                }
+            }
+        }
+    }
+    
+    return false; // 所有形状都无法放置
+}
+
+// 生成已连接的四连方群（应用实践-随机填充图形专用）
+// 策略：
+// 1. 生成一个矩形/正方形（行数≤6，列数≤6，格子数为4的倍数）
+// 2. 在矩形边缘放置2-3个连接的四连方
+// 3. 空白区域在内部，连通且不分割
+// 返回：{ clusterCells, preFilled, minR, maxR, minC, maxC }
+function generateConnectedTetrominoCluster(gridRows, gridCols) {
+    const types = ['I','L','T','Z','O'];
+
+    // 预填充四连方数量
+    const tetroCount = 2 + Math.floor(Math.random() * 2); // 2~3个
+
+    // 生成有效尺寸（只生成指定的尺寸组合，格子数为4的倍数，且行数≤6、列数≤6）
+    function getValidSizes() {
+        // 指定的有效尺寸组合（行数≤6，列数≤6，且格子数为4的倍数）
+        const validCombos = [
+            { width: 2, height: 4 },
+            { width: 4, height: 2 },
+            { width: 2, height: 6 },
+            { width: 6, height: 2 },
+            { width: 3, height: 4 },
+            { width: 4, height: 3 },
+            { width: 3, height: 6 },
+            { width: 6, height: 3 },
+            { width: 4, height: 4 },
+            { width: 4, height: 6 },
+            { width: 6, height: 4 },
+            { width: 6, height: 6 }
+        ];
+        return validCombos;
+    }
+
+    // 主生成循环
+    for (let attempt = 0; attempt < 100; attempt++) {
+        const sizes = getValidSizes();
+        if (sizes.length === 0) continue;
+
+        const size = sizes[Math.floor(Math.random() * sizes.length)];
+        const { width, height } = size;
+
+        // 在网格中央附近定位矩形
+        const maxRow = gridRows - height;
+        const maxCol = gridCols - width;
+        const startR = Math.floor(Math.random() * (maxRow + 1));
+        const startC = Math.floor(Math.random() * (maxCol + 1));
+
+        // 矩形范围
+        const rectMinR = startR;
+        const rectMaxR = startR + height - 1;
+        const rectMinC = startC;
+        const rectMaxC = startC + width - 1;
+
+        // 收集边缘位置（矩形边框上的格子）
+        const edgeCells = [];
+        for (let r = rectMinR; r <= rectMaxR; r++) {
+            edgeCells.push({ row: r, col: rectMinC });
+            edgeCells.push({ row: r, col: rectMaxC });
+        }
+        for (let c = rectMinC + 1; c < rectMaxC; c++) {
+            edgeCells.push({ row: rectMinR, col: c });
+            edgeCells.push({ row: rectMaxR, col: c });
+        }
+
+        // 打乱边缘位置
+        for (let i = edgeCells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [edgeCells[i], edgeCells[j]] = [edgeCells[j], edgeCells[i]];
+        }
+
+        // 生成预填充四连方（从边缘开始，互相连接）
+        const preFilled = [];
+        const usedCells = new Set();
+        const addCell = (r, c) => usedCells.add(r + ',' + c);
+        const hasCell = (r, c) => usedCells.has(r + ',' + c);
+
+        let placed = 0;
+        let placeAttempts = 0;
+
+        while (placed < tetroCount && placeAttempts < 200) {
+            placeAttempts++;
+            const type = types[Math.floor(Math.random() * types.length)];
+            const rotation = [0, 90, 180, 270][Math.floor(Math.random() * 4)];
+            const flip = [null, 'horizontal', 'vertical'][Math.floor(Math.random() * 3)];
+
+            // 获取形状相对坐标
+            let cells = BASE_SHAPES[type].map(([r, c]) => ({ r, c }));
+            let cols = Math.max(...cells.map(c => c.c)) + 1;
+            let rows = Math.max(...cells.map(c => c.r)) + 1;
+            if (flip) {
+                cells = cells.map(({ r, c }) => flipPoint(r, c, cols, rows, flip));
+                cols = Math.max(...cells.map(c => c.c)) + 1;
+                rows = Math.max(...cells.map(c => c.r)) + 1;
+            }
+            if (rotation !== 0) {
+                cells = cells.map(({ r, c }) => rotatePoint(r, c, cols, rows, rotation));
+            }
+            const minR = Math.min(...cells.map(c => c.r));
+            const minC = Math.min(...cells.map(c => c.c));
+            const normalized = cells.map(({ r, c }) => [r - minR, c - minC]);
+
+            // 候选位置
+            const candidates = [];
+
+            if (placed === 0) {
+                // 第一个：从边缘格子中选择
+                for (const ec of edgeCells.slice(0, 20)) {
+                    for (const [dr, dc] of normalized) {
+                        candidates.push({ anchorR: ec.row - dr, anchorC: ec.col - dc });
+                    }
+                }
+            } else {
+                // 后续：与已放置的四连方相邻
+                usedCells.forEach(key => {
+                    const [r, c] = key.split(',').map(Number);
+                    [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dc]) => {
+                        for (const [ndr, ndc] of normalized) {
+                            candidates.push({ anchorR: r + dr - ndr, anchorC: c + dc - ndc });
+                        }
+                    });
+                });
+            }
+
+            // 打乱候选
+            for (let i = candidates.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+            }
+
+            // 尝试放置
+            let success = false;
+            for (const { anchorR, anchorC } of candidates) {
+                const absCells = normalized.map(([dr, dc]) => ({
+                    row: anchorR + dr,
+                    col: anchorC + dc
+                }));
+
+                // 检查是否在矩形内
+                const inRect = absCells.every(c =>
+                    c.row >= rectMinR && c.row <= rectMaxR &&
+                    c.col >= rectMinC && c.col <= rectMaxC
+                );
+                if (!inRect) continue;
+
+                // 检查是否重叠
+                const overlaps = absCells.some(c => hasCell(c.row, c.col));
+                if (overlaps) continue;
+
+                // 第一个需要与边缘接触
+                if (placed === 0) {
+                    const touchesEdge = absCells.some(c =>
+                        c.row === rectMinR || c.row === rectMaxR ||
+                        c.col === rectMinC || c.col === rectMaxC
+                    );
+                    if (!touchesEdge) continue;
+                }
+
+                // 放置
+                preFilled.push({ type, cells: absCells });
+                absCells.forEach(c => addCell(c.row, c.col));
+                placed++;
+                success = true;
+                break;
+            }
+        }
+
+        if (preFilled.length < tetroCount) continue;
+
+        // 验证预填充四连方连通性
+        const allPreCells = preFilled.flatMap(p => p.cells);
+        const cellSet = new Set(allPreCells.map(c => c.row + ',' + c.col));
+        const visited = new Set();
+        const queue = [allPreCells[0]];
+        visited.add(allPreCells[0].row + ',' + allPreCells[0].col);
+
+        while (queue.length > 0) {
+            const cur = queue.shift();
+            [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dc]) => {
+                const nb = { row: cur.row + dr, col: cur.col + dc };
+                const key = nb.row + ',' + nb.col;
+                if (cellSet.has(key) && !visited.has(key)) {
+                    visited.add(key);
+                    queue.push(nb);
+                }
+            });
+        }
+
+        if (visited.size !== allPreCells.length) continue;
+
+        // 计算空白格子（矩形内除了预填充以外的格子）
+        // 重要：必须有空白区域，且空白区域至少有4格（能放下一个四连方）
+        const preFilledSet = new Set(allPreCells.map(c => c.row + ',' + c.col));
+        const blankCells = [];
+
+        for (let r = rectMinR; r <= rectMaxR; r++) {
+            for (let c = rectMinC; c <= rectMaxC; c++) {
+                if (!preFilledSet.has(r + ',' + c)) {
+                    blankCells.push({ row: r, col: c });
+                }
+            }
+        }
+
+        // 必须有空白区域，且至少有4格
+        if (blankCells.length < 4) continue;
+
+        // 关键检查：空白区域必须能被至少一个四连方填满
+        const canFitTetromino = checkBlankAreaCanFitTetromino(blankCells);
+        if (!canFitTetromino) continue;
+
+        // 验证空白区域连通性
+        const blankSet = new Set(blankCells.map(c => c.row + ',' + c.col));
+        const blankVisited = new Set();
+        const blankQueue = [blankCells[0]];
+        blankVisited.add(blankCells[0].row + ',' + blankCells[0].col);
+
+        while (blankQueue.length > 0) {
+            const cur = blankQueue.shift();
+            [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dc]) => {
+                const nb = { row: cur.row + dr, col: cur.col + dc };
+                const key = nb.row + ',' + nb.col;
+                if (blankSet.has(key) && !blankVisited.has(key)) {
+                    blankVisited.add(key);
+                    blankQueue.push(nb);
+                }
+            });
+        }
+
+        // 空白区域必须连通
+        if (blankVisited.size !== blankCells.length) continue;
+        
+        // 验证总格子数是4的倍数
+        const totalCells = blankCells.length + allPreCells.length;
+        if (totalCells % 4 !== 0) continue;
+
+        // 成功！返回结果
+        return {
+            clusterCells: [...blankCells, ...allPreCells],
+            preFilled: preFilled,
+            minR: rectMinR,
+            maxR: rectMaxR,
+            minC: rectMinC,
+            maxC: rectMaxC,
+            blankCells: blankCells
+        };
+    }
+
+    return null;
+}
+
+function highlightTargetCells(cells, preFilledList) {
+    clearTargetHighlight();
+    const preFilledSet = new Set();
+    (preFilledList||[]).forEach(pf => {
+        (pf.cells||[]).forEach(({row,col}) => preFilledSet.add(row + ',' + col));
+    });
+    cells.forEach(({row,col}) => {
+        const cell = document.querySelector('.grid-cell[data-row="' + row + '"][data-col="' + col + '"]');
+        if (cell) {
+            cell.classList.add('target-cell');
+            if (preFilledSet.has(row + ',' + col)) {
+                cell.classList.add('pre-filled');
+            }
+        }
+    });
+}
+
+function clearTargetHighlight() {
+    document.querySelectorAll('.target-cell').forEach(c => {
+        c.classList.remove('target-cell','pre-filled');
+    });
+}
+
+function validatePracticeFill() {
+    const target = window.__practiceTarget;
+    if (!target) return;
+    const allFilled = (target.cells||[]).every(({row,col}) => {
+        const cell = document.querySelector('.grid-cell[data-row="' + row + '"][data-col="' + col + '"]');
+        return cell && cell.hasChildNodes();
+    });
+    if (allFilled) {
+        showTetrominoMessage('🎉 恭喜！你成功将四连方围成了一个完整图形！');
+    }
+}
+
+function renderPracticeMode(cfg, skipGenerate) {
+    window.__practiceTarget = null;
+    clearTargetHighlight();
+    selectedShape = null;
+    document.getElementById('panelHeader').classList.remove('hidden');
+    const sec = document.getElementById('tetrominoSection');
+    sec.classList.remove('hidden');
+    document.getElementById('dragSquaresSection').classList.add('hidden');
+    document.getElementById('exerciseSection').classList.add('hidden');
+    document.getElementById('summarySection').classList.add('hidden');
+
+    const gridClass = cfg.gridClass || 'grid-14x8';
+    const m = gridClass.match(/grid-(\d+)x(\d+)/);
+    const gCols = m ? parseInt(m[1]) : 14;
+    const gRows = m ? parseInt(m[2]) : 8;
+
+    let target, descText;
+
+    if (cfg.practiceType === 'rectangle') {
+        if (skipGenerate) {
+            // 首次进入：只初始化界面，不生成高亮，等用户点"随机长方形"
+            descText = '点击右侧【🎲 随机长方形】生成一个随机长方形，然后在高亮区域放置四连方将其拼满。';
+        } else {
+            target = generateRandomRectangle(gRows, gCols);
+            descText = '点击右侧【🎲 随机长方形】生成一个随机长方形，然后在高亮区域放置四连方将其拼满。';
+        }
+    } else if (cfg.practiceType === 'square') {
+        if (skipGenerate) {
+            // 首次进入：只初始化界面，不生成高亮，等用户点"随机正方形"
+            descText = '点击右侧【🎲 随机正方形】生成一个随机正方形，然后在高亮区域放置四连方将其拼满。';
+        } else {
+            target = generateRandomSquare(gRows, gCols);
+            descText = '点击右侧【🎲 随机正方形】生成一个随机正方形，然后在高亮区域放置四连方将其拼满。';
+        }
+    } else if (cfg.practiceType === 'fill') {
+        if (skipGenerate) {
+            descText = '点击右侧【🎲 随机填充图形】，请在剩余空格继续放置四连方，将这些已连接的四连方围成一个完整的长方形或正方形。';
+        } else {
+            // 循环生成直到得到有效图形（空白格为4的倍数且连通，空白区域连通）
+            let attempts = 0;
+            do {
+                target = generateConnectedTetrominoCluster(gRows, gCols);
+                attempts++;
+            } while (!target && attempts < 100);
+            // 如果生成失败，再尝试最多100次
+            if (!target) {
+                for (let i = 0; i < 100 && !target; i++) {
+                    target = generateConnectedTetrominoCluster(gRows, gCols);
+                }
+            }
+            descText = '请在剩余空格继续放置四连方，将这些已连接的四连方围成一个完整的长方形或正方形。';
+            // 高亮区域：预填充四连方的外包围框，但只保留空白格子（不含预填充格）
+            if (target) {
+                const { minR, maxR, minC, maxC } = target;
+                const preFilledPosSet = new Set((target.preFilled||[]).flatMap(pf =>
+                    (pf.cells||[]).map(({row,col}) => row+','+col)
+                ));
+                target.cells = [];
+                for (let r = minR; r <= maxR; r++) {
+                    for (let c = minC; c <= maxC; c++) {
+                        if (!preFilledPosSet.has(r+','+c)) {
+                            target.cells.push({row: r, col: c});
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    window.__practiceTarget = target || null;
+    window.__practiceCfg = cfg;
+    // 拼任意长方形/正方形/填充图形模式标题固定显示"操作提示"
+    const displayTitle = (cfg.practiceType === 'rectangle' || cfg.practiceType === 'square' || cfg.practiceType === 'fill') ? '操作提示' : cfg.title;
+    document.getElementById('panelTitle').textContent = displayTitle;
+    document.getElementById('panelDesc').textContent = descText;
+
+    // 根据模式分别显示对应按钮
+    const btnRegen = document.getElementById('btnRegenRect');
+    if (btnRegen) btnRegen.style.display = (cfg.practiceType === 'rectangle') ? '' : 'none';
+    const btnSquare = document.getElementById('btnRegenSquare');
+    if (btnSquare) btnSquare.style.display = (cfg.practiceType === 'square') ? '' : 'none';
+    const btnFill = document.getElementById('btnRegenFill');
+    if (btnFill) btnFill.style.display = (cfg.practiceType === 'fill') ? '' : 'none';
+
+    buildShapePool(cfg.shapes || ['I','L','T','Z','O']);
+
+    // 用 requestAnimationFrame 确保容器尺寸已渲染，再计算格子大小
+    requestAnimationFrame(() => {
+        buildGrid(gridClass);
+
+        // skipGenerate=true 时（首次进入长方形/正方形/填充图形），不高亮，等用户点按钮
+        if (!target) return;
+
+        if (cfg.practiceType === 'fill') {
+            // 填充图形模式：只高亮空白格子，预填充四连方正常颜色显示（不加 target-cell 高亮）
+            const preFilledSet = new Set();
+            (target.preFilled||[]).forEach(pf => {
+                (pf.cells||[]).forEach(({row,col}) => preFilledSet.add(row+','+col));
+            });
+            (target.cells||[]).forEach(({row,col}) => {
+                const cell = document.querySelector('.grid-cell[data-row="'+row+'"][data-col="'+col+'"]');
+                if (!cell) return;
+                if (!preFilledSet.has(row+','+col)) {
+                    cell.classList.add('target-cell'); // 空白格子高亮
+                }
+            });
+            // 渲染预填充四连方（正常颜色，无高亮边框，无单元格背景）
+            (target.preFilled||[]).forEach(pf => {
+                const color = SHAPE_COLORS[pf.type];
+                pf.cells.forEach(({row,col}) => {
+                    const cell = document.querySelector('.grid-cell[data-row="'+row+'"][data-col="'+col+'"]');
+                    if (cell && !cell.hasChildNodes()) {
+                        const sq = document.createElement('div');
+                        sq.className = 'sq';
+                        sq.style.background = color;
+                        sq.dataset.preFilled = '1';
+                        sq.style.opacity = '1';
+                        cell.appendChild(sq);
+                        cell.classList.add('filled','pre-filled-cell'); // 去掉单元格边框背景
+                    }
+                });
+            });
+        } else {
+            highlightTargetCells(target.cells, (target.preFilled||[]));
+            if (target.preFilled) {
+                target.preFilled.forEach(pf => {
+                    const color = SHAPE_COLORS[pf.type];
+                    pf.cells.forEach(({row,col}) => {
+                        const cell = document.querySelector('.grid-cell[data-row="' + row + '"][data-col="' + col + '"]');
+                        if (cell && !cell.hasChildNodes()) {
+                            const sq = document.createElement('div');
+                            sq.className = 'sq';
+                            sq.style.background = color;
+                            sq.dataset.preFilled = '1';
+                            sq.style.opacity = '0.92';
+                            cell.appendChild(sq);
+                            cell.classList.add('filled','pre-filled');
+                        }
+                    });
+                });
+            }
+        }
+    }); // end requestAnimationFrame
+}
+
+// 换一个随机长方形（应用实践-拼任意长方形专用）
+function regenPracticeRect() {
+    const cfg = window.__practiceCfg;
+    if (!cfg || cfg.practiceType !== 'rectangle') return;
+    renderPracticeMode(cfg, false);
+}
+
+// 换一个随机正方形（应用实践-拼任意正方形专用）
+function regenPracticeSquare() {
+    const cfg = window.__practiceCfg;
+    if (!cfg || cfg.practiceType !== 'square') return;
+    renderPracticeMode(cfg, false);
+}
+
+// 随机填充图形（应用实践-四连方填充图形专用）
+function regenPracticeFill() {
+    const cfg = window.__practiceCfg;
+    if (!cfg || cfg.practiceType !== 'fill') return;
+    renderPracticeMode(cfg, false);
+}
+
+// 认识四连方 - 使用帮助
+function showDragSquaresHelp() {
+    const helpText = `拼图区域操作指南：
+
+1. 拖拽左侧的4个蓝色正方形到右侧网格中
+2. 点击网格中已放置的正方形可以移除它
+3. 尝试将4个正方形拼成不同的四连方形状
+4. 四连方要求：每个正方形必须与另一个正方形共享一条完整的边
+
+💡 提示：试试拼出一字形、L形、T形、田字形、Z形！`;
+    alert(helpText);
+}
+
+// 点击遮罩层关闭弹窗
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('helpModal');
+    if (e.target === modal) {
+        closeHelp();
+    }
+});
+
+// ============================================================
+// 初始化：默认显示"探究新知"
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+    switchTab('explore');
+});
+</script>
+
+    <!-- 帮助弹窗 -->
+    <div class="help-modal-overlay" id="helpModal">
+        <div class="help-modal">
+            <div class="help-modal-title">💡 使用帮助</div>
+            <div class="help-modal-content">
+                <ol>
+                    <li>选择左侧形状拖入网格</li>
+                    <li>使用旋转/翻转按钮调整形状</li>
+                    <li>将形状放入网格指定位置</li>
+                    <li>点击"验证结果"检查答案</li>
+                </ol>
+            </div>
+            <button class="help-modal-btn" onclick="closeHelp()">确定</button>
+        </div>
+    </div>
+
+</body>
+</html>
